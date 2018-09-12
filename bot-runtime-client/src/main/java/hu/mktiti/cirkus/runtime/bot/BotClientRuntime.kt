@@ -22,16 +22,24 @@ class BotClientRuntime(
         val socket = Socket("localhost", port)
         val channel: BotClientChannel = BotClientSocketChannel(socket)
 
-        val botInterface: Class<out BotInterface> = clientHelper.searchForBotInterface() ?: return
-        val bot: BotInterface = botClientHelper.searchAndCreateBotImplementation(botInterface) ?: return
-        val proxy: BotProxy = botClientHelper.createProxyForBot(botInterface, bot)
+        try {
+            val botInterface: Class<out BotInterface> = clientHelper.searchForBotInterface() ?: return
+            val bot: BotInterface = botClientHelper.searchAndCreateBotImplementation(botInterface) ?: return
+            val proxy: BotProxy = botClientHelper.createProxyForBot(botInterface, bot)
 
-        while (true) {
-            val call: Call = channel.waitForCall() ?: break
-            val response = proxy.callMethod(call.method, call.params)
-            channel.sendResponse(response)
+            while (true) {
+                val call: Call = channel.waitForCall() ?: break
+                val response = proxy.callMethod(call.method, call.params)
+                channel.sendResponse(call.method, response)
+            }
+        } catch (e: Exception) {
+            channel.reportBotError(e)
         }
 
     }
 
+}
+
+fun main(args: Array<String>) {
+    BotClientRuntime().runClient(mapOf())
 }

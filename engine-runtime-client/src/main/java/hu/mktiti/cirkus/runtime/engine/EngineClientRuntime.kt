@@ -15,8 +15,16 @@ class EngineClientRuntime(
     override fun runClient(arguments: Map<String, String>) {
         val port = arguments["port"]?.toIntOrNull() ?: defaultPort
 
+        println("Connecting to localhost on port $port")
+
         val socket = Socket("localhost", port)
+
+        println("Socket created")
+
         val channel: EngineClientChannel = EngineClientSocketChannel(socket)
+
+        println("Channel created")
+
         val (engine, _, _) = actorHelper.createActors(channel) ?: throw RuntimeException("Failed to create actors")
 
         println("Starting game")
@@ -28,4 +36,8 @@ class EngineClientRuntime(
         channel.sendResult(result)
     }
 
+}
+
+fun main(args: Array<String>) {
+    EngineClientRuntime().runClient(mapOf())
 }

@@ -2,11 +2,14 @@ package hu.mktiti.cirkus.runtime.bot
 
 import hu.mktiti.cirkus.runtime.base.Call
 import hu.mktiti.kreator.InjectableType
+import java.lang.Exception
 
 @InjectableType
 interface BotClientChannel {
 
-    fun sendResponse(data: Any?)
+    fun reportBotError(exception: Exception)
+
+    fun sendResponse(method: String, data: Any?)
 
     fun log(message: String)
 

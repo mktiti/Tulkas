@@ -2,7 +2,7 @@ package hu.mktiti.cirkus.api;
 
 import java.io.Serializable;
 
-public final class GameResult implements Serializable  {
+public final class GameResult implements Serializable {
 
     enum ResultType implements Serializable { CRASH, ERROR, WIN, DRAW }
     enum Actor implements Serializable { BOT_A, BOT_B, ENGINE }
@@ -56,4 +56,11 @@ public final class GameResult implements Serializable  {
         return doBotWins(Actor.BOT_B);
     }
 
+    public ResultType getType() {
+        return type;
+    }
+
+    public Actor getActor() {
+        return actor;
+    }
 }

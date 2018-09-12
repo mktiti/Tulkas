@@ -2,7 +2,6 @@ package hu.mktiti.cirkus.runtime.base
 
 import hu.mktiti.kreator.InjectableType
 import hu.mktiti.kreator.inject
-import java.util.*
 
 @InjectableType
 interface RuntimeClient {

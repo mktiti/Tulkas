@@ -2,29 +2,47 @@ package hu.mktiti.cirkus.runtime.engine
 
 import hu.mktiti.cirkus.api.GameResult
 import hu.mktiti.cirkus.runtime.base.*
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
+import hu.mktiti.kreator.inject
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.io.PrintWriter
+import java.lang.Exception
 import java.net.Socket
 
 class EngineClientSocketChannel(
-        socket: Socket
+        socket: Socket,
+        private val messageHelper: MessageHelper = inject()
 ) : EngineClientChannel {
 
-    private val objectOutStream = ObjectOutputStream(socket.getOutputStream())
-    private val objectInStream = ObjectInputStream(socket.getInputStream())
+    private val outputWriter: PrintWriter = PrintWriter(socket.getOutputStream())
+    private val bufferedReader = BufferedReader(InputStreamReader(socket.getInputStream()))
 
     private fun sendMessage(message: Message) {
-        objectOutStream.writeObject(message)
+        val messageString = messageHelper.serializeMessage(message)
+        outputWriter.print(messageString)
+        outputWriter.flush()
     }
 
     override fun callFunction(target: CallTarget, methodName: String, params: List<Any?>): Any? {
-        sendMessage(Message(MessageType.CALL, ProxyCall(target, Call(methodName, params))))
-        return objectInStream.readObject()
+        sendMessage(Message(ProxyCall(target), Call(methodName, params)))
+
+        val line = bufferedReader.readLine() ?: throw RuntimeException("Cannot read from socket")
+        val message = messageHelper.deserializeMessage(line)
+        val header = message.header
+        if (header is CallResult && header.method == methodName) {
+            return message.data
+        } else {
+            throw BotException("Not result is returned")
+        }
     }
 
     override fun log(target: LogTarget, message: String) =
-        sendMessage(Message(MessageType.LOG, LogEntry(target, message)))
+        sendMessage(Message(LogEntry(target), message))
 
     override fun sendResult(result: GameResult) =
-        sendMessage(Message(MessageType.RESULT, result))
+        sendMessage(Message(MatchResult(result)))
+
+    override fun reportError(exception: Exception) =
+        sendMessage(Message(ErrorResult("${exception.javaClass.name} thrown, message: ${exception.message}")))
+
 }
