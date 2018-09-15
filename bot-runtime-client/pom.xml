@@ -13,10 +13,6 @@
     <artifactId>bot-runtime-client</artifactId>
     <version>0.1-SNAPSHOT</version>
 
-    <properties>
-        <kotlin.version>1.2.61</kotlin.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>hu.mktiti.cirkus</groupId>
