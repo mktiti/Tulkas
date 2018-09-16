@@ -1,33 +1,30 @@
 package hu.mktiti.cirkus.runtime.engine
 
 import hu.mktiti.cirkus.api.GameResult
-import hu.mktiti.cirkus.runtime.base.*
+import hu.mktiti.cirkus.runtime.common.*
 import hu.mktiti.kreator.inject
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.PrintWriter
 import java.lang.Exception
-import java.net.Socket
 
-class EngineClientSocketChannel(
-        socket: Socket,
-        private val messageHelper: MessageHelper = inject()
-) : EngineClientChannel {
-
-    private val outputWriter: PrintWriter = PrintWriter(socket.getOutputStream())
-    private val bufferedReader = BufferedReader(InputStreamReader(socket.getInputStream()))
+class DefaultMessageHandler(
+        private val inQueue: InQueue,
+        private val outQueue: OutQueue,
+        private val messageConverter: MessageConverter = inject()
+) : MessageHandler {
 
     private fun sendMessage(message: Message) {
-        val messageString = messageHelper.serializeMessage(message)
-        outputWriter.print(messageString)
-        outputWriter.flush()
+        outQueue.addMessage(messageConverter.toDto(message))
+    }
+
+    override fun sendActorBinaryRequest() {
+        sendMessage(Message(ActorJar))
+        val message = inQueue.getMessage()
+        println("message response to actor jar: $message")
     }
 
     override fun callFunction(target: CallTarget, methodName: String, params: List<Any?>): Any? {
         sendMessage(Message(ProxyCall(target), Call(methodName, params)))
 
-        val line = bufferedReader.readLine() ?: throw RuntimeException("Cannot read from socket")
-        val message = messageHelper.deserializeMessage(line)
+        val message = messageConverter.fromDto(inQueue.getMessage())
         val header = message.header
         if (header is CallResult && header.method == methodName) {
             return message.data
@@ -37,7 +34,7 @@ class EngineClientSocketChannel(
     }
 
     override fun log(target: LogTarget, message: String) =
-        sendMessage(Message(LogEntry(target), message))
+        sendMessage(Message(LogEntry(target, message)))
 
     override fun sendResult(result: GameResult) =
         sendMessage(Message(MatchResult(result)))

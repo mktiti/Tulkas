@@ -17,6 +17,7 @@
     </properties>
 
     <modules>
+        <module>runtime-common</module>
         <module>base-runtime-client</module>
         <module>bot-runtime-client</module>
         <module>engine-runtime-client</module>

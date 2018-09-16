@@ -1,5 +1,8 @@
 package hu.mktiti.cirkus.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 
 public final class GameResult implements Serializable {
@@ -10,7 +13,8 @@ public final class GameResult implements Serializable {
     private final ResultType type;
     private final Actor actor;
 
-    private GameResult(final ResultType type, final Actor actor) {
+    @JsonCreator
+    private GameResult(@JsonProperty("type") final ResultType type, @JsonProperty("actor") final Actor actor) {
         this.type = type;
         this.actor = actor;
     }

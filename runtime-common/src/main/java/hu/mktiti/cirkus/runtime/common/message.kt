@@ -1,11 +1,11 @@
-package hu.mktiti.cirkus.runtime.base
+package hu.mktiti.cirkus.runtime.common
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import hu.mktiti.cirkus.api.GameResult
 import java.io.Serializable
 
 enum class LogTarget : Serializable {
-    SELF, ENGINE, BOT_A, BOT_B, ALL
+    SELF, BOT_A, BOT_B, BOTS, ALL
 }
 
 enum class CallTarget : Serializable {
@@ -26,13 +26,19 @@ sealed class Header : Serializable
 
 data class ProxyCall(val target: CallTarget) : Header(), Serializable
 
-data class LogEntry(val target: LogTarget) : Header(), Serializable
+data class LogEntry(val target: LogTarget, val message: String) : Header(), Serializable
 
 data class CallResult(val method: String) : Header(), Serializable
 
 data class MatchResult(val result: GameResult) : Header(), Serializable
 
 data class ErrorResult(val message: String) : Header(), Serializable
+
+object ActorJar : Header(), Serializable
+
+object ShutdownNotice : Header(), Serializable
+
+object StartNotice : Header(), Serializable
 
 // Data
 

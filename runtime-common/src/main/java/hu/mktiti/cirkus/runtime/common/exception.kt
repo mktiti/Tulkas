@@ -1,4 +1,4 @@
-package hu.mktiti.cirkus.runtime.base
+package hu.mktiti.cirkus.runtime.common
 
 open class BotException(message: String) : RuntimeException(message)
 

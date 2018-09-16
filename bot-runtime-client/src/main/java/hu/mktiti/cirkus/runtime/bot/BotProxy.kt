@@ -1,6 +1,6 @@
 package hu.mktiti.cirkus.runtime.bot
 
-import hu.mktiti.cirkus.runtime.base.BotException
+import hu.mktiti.cirkus.runtime.common.BotException
 
 interface BotProxy {
 

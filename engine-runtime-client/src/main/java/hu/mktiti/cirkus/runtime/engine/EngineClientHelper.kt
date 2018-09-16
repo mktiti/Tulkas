@@ -2,7 +2,7 @@ package hu.mktiti.cirkus.runtime.engine
 
 import hu.mktiti.cirkus.api.BotInterface
 import hu.mktiti.cirkus.api.GameEngine
-import hu.mktiti.cirkus.runtime.base.BotDefinitionException
+import hu.mktiti.cirkus.runtime.common.BotDefinitionException
 import hu.mktiti.kreator.Injectable
 import hu.mktiti.kreator.InjectableType
 import hu.mktiti.kreator.inject
@@ -36,7 +36,6 @@ class DefaultEngineClientHelper(
         }
     }
 
-    //@Suppress("UNCHECKED_CAST")
     override fun <T : BotInterface> searchAndCreateEngine(botClass: Class<T>, botA: BotInterface, botB: BotInterface): GameEngine<*>? {
         val classes: List<Class<out GameEngine<*>>> = reflections.getSubTypesOf(GameEngine::class.java).toList()
         val constructors: List<Constructor<out GameEngine<*>>> =

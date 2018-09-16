@@ -10,7 +10,7 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>base-runtime-client</artifactId>
+    <artifactId>runtime-common</artifactId>
     <version>0.1-SNAPSHOT</version>
 
     <dependencies>
@@ -21,21 +21,9 @@
         </dependency>
 
         <dependency>
-            <groupId>hu.mktiti.cirkus</groupId>
-            <artifactId>runtime-common</artifactId>
-            <version>0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-kotlin</artifactId>
             <version>2.9.4.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.9.11</version>
         </dependency>
 
         <dependency>

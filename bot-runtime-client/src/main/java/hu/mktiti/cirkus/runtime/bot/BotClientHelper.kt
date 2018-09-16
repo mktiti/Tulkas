@@ -1,7 +1,7 @@
 package hu.mktiti.cirkus.runtime.bot
 
 import hu.mktiti.cirkus.api.BotInterface
-import hu.mktiti.cirkus.runtime.base.BotDefinitionException
+import hu.mktiti.cirkus.runtime.common.BotDefinitionException
 import hu.mktiti.kreator.Injectable
 import hu.mktiti.kreator.InjectableType
 import hu.mktiti.kreator.inject
