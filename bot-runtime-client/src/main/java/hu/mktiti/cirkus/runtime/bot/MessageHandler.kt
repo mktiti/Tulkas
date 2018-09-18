@@ -1,7 +1,7 @@
 package hu.mktiti.cirkus.runtime.bot
 
 import hu.mktiti.cirkus.runtime.common.Call
-import hu.mktiti.kreator.InjectableType
+import hu.mktiti.kreator.annotation.InjectableType
 import java.lang.Exception
 
 @InjectableType

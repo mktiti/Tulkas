@@ -2,11 +2,8 @@ package hu.mktiti.cirkus.runtime.common
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import hu.mktiti.cirkus.api.GameResult
+import hu.mktiti.cirkus.api.LogTarget
 import java.io.Serializable
-
-enum class LogTarget : Serializable {
-    SELF, BOT_A, BOT_B, BOTS, ALL
-}
 
 enum class CallTarget : Serializable {
     BOT_A, BOT_B

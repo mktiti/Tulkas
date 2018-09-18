@@ -1,8 +1,9 @@
 package hu.mktiti.cirkus.runtime.engine
 
 import hu.mktiti.cirkus.api.GameResult
+import hu.mktiti.cirkus.api.LogTarget
 import hu.mktiti.cirkus.runtime.common.*
-import hu.mktiti.kreator.inject
+import hu.mktiti.kreator.api.inject
 import java.lang.Exception
 
 class DefaultMessageHandler(

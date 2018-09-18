@@ -2,10 +2,11 @@ package hu.mktiti.cirkus.runtime.engine
 
 import hu.mktiti.cirkus.api.BotInterface
 import hu.mktiti.cirkus.api.GameEngine
+import hu.mktiti.cirkus.api.GameEngineLogger
 import hu.mktiti.cirkus.runtime.common.BotDefinitionException
-import hu.mktiti.kreator.Injectable
-import hu.mktiti.kreator.InjectableType
-import hu.mktiti.kreator.inject
+import hu.mktiti.kreator.annotation.Injectable
+import hu.mktiti.kreator.annotation.InjectableType
+import hu.mktiti.kreator.api.inject
 import org.reflections.Reflections
 import java.lang.reflect.Constructor
 import java.lang.reflect.Modifier
@@ -16,7 +17,7 @@ interface EngineClientHelper {
 
     fun <T : BotInterface> createProxyForBot(botClass: Class<T>, invokeLogic: (String, List<Any?>) -> Any?): T
 
-    fun <T : BotInterface> searchAndCreateEngine(botClass: Class<T>, botA: BotInterface, botB: BotInterface): GameEngine<*>?
+    fun <T : BotInterface> searchAndCreateEngine(botClass: Class<T>, botA: BotInterface, botB: BotInterface, logger: GameEngineLogger): GameEngine<*>?
 
 }
 
@@ -36,19 +37,42 @@ class DefaultEngineClientHelper(
         }
     }
 
-    override fun <T : BotInterface> searchAndCreateEngine(botClass: Class<T>, botA: BotInterface, botB: BotInterface): GameEngine<*>? {
+    private fun <T, B> filterConstructors(constructor: Constructor<T>, botInterface: Class<B>): Boolean {
+        fun allBots(vararg types: Class<*>): Boolean = types.all { it.isAssignableFrom(botInterface) }
+
+        val paramTypes = constructor.parameterTypes
+        return when (paramTypes.size) {
+            2 -> allBots(*paramTypes)
+            3 -> (allBots(paramTypes[0], paramTypes[1]) && GameEngineLogger::class.java.isAssignableFrom(paramTypes[2]) ||
+                    (allBots(paramTypes[1], paramTypes[2]) && GameEngineLogger::class.java.isAssignableFrom(paramTypes[0])))
+            else -> false
+        }
+    }
+
+    override fun <T : BotInterface> searchAndCreateEngine(botClass: Class<T>, botA: BotInterface, botB: BotInterface, logger: GameEngineLogger): GameEngine<*>? {
         val classes: List<Class<out GameEngine<*>>> = reflections.getSubTypesOf(GameEngine::class.java).toList()
-        val constructors: List<Constructor<out GameEngine<*>>> =
+        val constructors: List<Constructor<*>> =
                 classes
                         .filter { !Modifier.isAbstract(it.modifiers) && Modifier.isPublic(it.modifiers) }
-                        .mapNotNull { it.getConstructor(botClass, botClass) }
+                        .flatMap { it.constructors.toList() }
+                        .filter { filterConstructors(it, botClass) }
 
-        return when (constructors.size) {
+        val instance = when (constructors.size) {
             0 -> null
-            1 -> constructors.first().newInstance(botA, botB)
+            1 -> {
+                val constructor = constructors.first()
+                when {
+                    constructor.parameterCount == 2 -> constructor.newInstance(botClass, botClass)
+                    GameEngineLogger::class.java.isAssignableFrom(constructor.parameterTypes[0]) ->
+                        constructor.newInstance(logger, botA, botB)
+                    else -> constructor.newInstance(botA, botB, logger)
+                }
+            }
             else ->
                 throw BotDefinitionException("Multiple valid bot found for bot interface (public non-abstract class with no-arg public constructor)!")
         }
+
+        return instance as? GameEngine<*>
     }
 
 }

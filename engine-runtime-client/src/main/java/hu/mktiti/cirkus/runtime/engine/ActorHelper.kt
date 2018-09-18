@@ -2,11 +2,12 @@ package hu.mktiti.cirkus.runtime.engine
 
 import hu.mktiti.cirkus.api.BotInterface
 import hu.mktiti.cirkus.api.GameEngine
+import hu.mktiti.cirkus.api.GameEngineLogger
 import hu.mktiti.cirkus.runtime.base.RuntimeClientHelper
 import hu.mktiti.cirkus.runtime.common.CallTarget
-import hu.mktiti.kreator.Injectable
-import hu.mktiti.kreator.InjectableType
-import hu.mktiti.kreator.inject
+import hu.mktiti.kreator.annotation.Injectable
+import hu.mktiti.kreator.annotation.InjectableType
+import hu.mktiti.kreator.api.inject
 
 data class Actors<T : BotInterface>(
         val engine: GameEngine<*>,
@@ -17,7 +18,7 @@ data class Actors<T : BotInterface>(
 @InjectableType
 interface ActorHelper {
 
-    fun createActors(messageHandler: MessageHandler): Actors<*>?
+    fun createActors(messageHandler: MessageHandler, logger: GameEngineLogger): Actors<*>?
 
 }
 
@@ -32,13 +33,13 @@ class DefaultActorHelper(
                 messageHandler.callFunction(target, method, args)
             }
 
-    override fun createActors(messageHandler: MessageHandler): Actors<*>? {
+    override fun createActors(messageHandler: MessageHandler, logger: GameEngineLogger): Actors<*>? {
 
         return try {
             val botInterface: Class<out BotInterface> = clientHelper.searchForBotInterface() ?: return null
             val proxyA: BotInterface = proxy(botInterface, messageHandler, CallTarget.BOT_A)
             val proxyB: BotInterface = proxy(botInterface, messageHandler, CallTarget.BOT_B)
-            val engine: GameEngine<*> = engineHelper.searchAndCreateEngine(botInterface, proxyA, proxyB) ?: return null
+            val engine: GameEngine<*> = engineHelper.searchAndCreateEngine(botInterface, proxyA, proxyB, logger) ?: return null
             Actors(engine, proxyA, proxyB)
         } catch (e: Exception) {
             e.printStackTrace()

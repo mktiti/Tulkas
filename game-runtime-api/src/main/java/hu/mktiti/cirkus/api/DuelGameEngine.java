@@ -8,13 +8,15 @@ public abstract class DuelGameEngine<T extends BotInterface> implements GameEngi
 
     protected final T botA;
     protected final T botB;
+    protected final GameEngineLogger logger;
 
     private boolean isCurrentlyBotA = true;
     private T currentBot;
 
-    public DuelGameEngine(final T botA, final T botB) {
+    public DuelGameEngine(final T botA, final T botB, final GameEngineLogger engineLogger) {
         this.botA = botA;
         this.botB = botB;
+        logger = engineLogger;
         currentBot = botA;
     }
 
@@ -41,6 +43,30 @@ public abstract class DuelGameEngine<T extends BotInterface> implements GameEngi
             }
         } catch (final Exception e) {
             return crash(Actor.ENGINE);
+        }
+    }
+
+    protected final void log(final String message) {
+        if (logger != null) {
+            logger.log(message);
+        }
+    }
+
+    protected final void logForCurrent(final String message) {
+        if (logger != null) {
+            logger.logFor((isCurrentlyBotA() ? LogTarget.BOT_A : LogTarget.BOT_B), message);
+        }
+    }
+
+    protected final void logForBots(final String message) {
+        if (logger != null) {
+            logger.logFor(LogTarget.BOTS, message);
+        }
+    }
+
+    protected final void logForAll(final String message) {
+        if (logger != null) {
+            logger.logFor(LogTarget.ALL, message);
         }
     }
 

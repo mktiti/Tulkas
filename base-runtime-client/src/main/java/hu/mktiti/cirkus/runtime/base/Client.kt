@@ -2,7 +2,7 @@ package hu.mktiti.cirkus.runtime.base
 
 import hu.mktiti.cirkus.runtime.common.InQueue
 import hu.mktiti.cirkus.runtime.common.OutQueue
-import hu.mktiti.kreator.InjectableType
+import hu.mktiti.kreator.annotation.InjectableType
 
 @InjectableType
 interface Client {

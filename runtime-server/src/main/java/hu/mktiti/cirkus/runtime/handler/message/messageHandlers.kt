@@ -3,7 +3,7 @@ package hu.mktiti.cirkus.runtime.handler.message
 import hu.mktiti.cirkus.runtime.common.CallResult
 import hu.mktiti.cirkus.runtime.common.MessageDto
 import hu.mktiti.cirkus.runtime.common.ProxyCall
-import hu.mktiti.kreator.InjectableType
+import hu.mktiti.kreator.annotation.InjectableType
 
 @InjectableType
 interface ClientMessageHandler {

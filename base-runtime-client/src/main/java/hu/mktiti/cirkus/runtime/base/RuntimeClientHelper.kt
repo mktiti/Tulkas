@@ -2,10 +2,10 @@ package hu.mktiti.cirkus.runtime.base
 
 import hu.mktiti.cirkus.api.BotInterface
 import hu.mktiti.cirkus.runtime.common.BotDefinitionException
-import hu.mktiti.kreator.Injectable
-import hu.mktiti.kreator.InjectableArity
-import hu.mktiti.kreator.InjectableType
-import hu.mktiti.kreator.inject
+import hu.mktiti.kreator.annotation.Injectable
+import hu.mktiti.kreator.annotation.InjectableArity
+import hu.mktiti.kreator.annotation.InjectableType
+import hu.mktiti.kreator.api.inject
 import org.reflections.Reflections
 import org.reflections.scanners.SubTypesScanner
 import org.reflections.util.ClasspathHelper

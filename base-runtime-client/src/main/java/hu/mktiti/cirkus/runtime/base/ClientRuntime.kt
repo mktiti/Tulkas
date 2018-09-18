@@ -4,7 +4,7 @@ import hu.mktiti.cirkus.runtime.common.Channel
 import hu.mktiti.cirkus.runtime.common.InQueue
 import hu.mktiti.cirkus.runtime.common.OutQueue
 import hu.mktiti.cirkus.runtime.common.SocketChannel
-import hu.mktiti.kreator.inject
+import hu.mktiti.kreator.api.inject
 import java.net.Socket
 import kotlin.concurrent.thread
 

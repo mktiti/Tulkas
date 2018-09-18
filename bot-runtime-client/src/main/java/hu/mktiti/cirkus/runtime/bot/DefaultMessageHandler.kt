@@ -1,7 +1,8 @@
 package hu.mktiti.cirkus.runtime.bot
 
+import hu.mktiti.cirkus.api.LogTarget
 import hu.mktiti.cirkus.runtime.common.*
-import hu.mktiti.kreator.inject
+import hu.mktiti.kreator.api.inject
 import java.util.*
 
 class DefaultMessageHandler(

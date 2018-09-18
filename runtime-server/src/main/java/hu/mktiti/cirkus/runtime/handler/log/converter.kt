@@ -1,9 +1,9 @@
 package hu.mktiti.cirkus.runtime.handler.log
 
 import hu.mktiti.cirkus.runtime.handler.log.LogSender.*
-import hu.mktiti.kreator.Injectable
-import hu.mktiti.kreator.InjectableArity
-import hu.mktiti.kreator.InjectableType
+import hu.mktiti.kreator.annotation.Injectable
+import hu.mktiti.kreator.annotation.InjectableArity
+import hu.mktiti.kreator.annotation.InjectableType
 
 @InjectableType
 interface LogConverter {

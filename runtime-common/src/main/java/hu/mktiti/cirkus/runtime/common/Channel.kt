@@ -1,7 +1,7 @@
 package hu.mktiti.cirkus.runtime.common
 
-import hu.mktiti.kreator.InjectableType
-import hu.mktiti.kreator.inject
+import hu.mktiti.kreator.annotation.InjectableType
+import hu.mktiti.kreator.api.inject
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter

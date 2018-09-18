@@ -1,6 +1,6 @@
 package hu.mktiti.cirkus.runtime.handler.log
 
-import hu.mktiti.kreator.inject
+import hu.mktiti.kreator.api.inject
 
 class LogHandler(
         private val logQueue: LogQueue,

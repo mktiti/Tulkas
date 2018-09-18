@@ -2,9 +2,9 @@ package hu.mktiti.cirkus.runtime.common
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import hu.mktiti.kreator.Injectable
-import hu.mktiti.kreator.InjectableType
-import hu.mktiti.kreator.inject
+import hu.mktiti.kreator.annotation.Injectable
+import hu.mktiti.kreator.annotation.InjectableType
+import hu.mktiti.kreator.api.inject
 
 @InjectableType
 interface MessageSerializer {

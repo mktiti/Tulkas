@@ -14,11 +14,6 @@
     <version>0.1-SNAPSHOT</version>
 
     <dependencies>
-        <dependency>
-            <groupId>hu.mktiti.cirkus</groupId>
-            <artifactId>game-runtime-api</artifactId>
-            <version>0.2-SNAPSHOT</version>
-        </dependency>
 
         <dependency>
             <groupId>hu.mktiti.cirkus</groupId>
@@ -34,7 +29,19 @@
 
         <dependency>
             <groupId>hu.mktiti</groupId>
-            <artifactId>kreator</artifactId>
+            <artifactId>kreator-annotation</artifactId>
+            <version>0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>hu.mktiti</groupId>
+            <artifactId>kreator-api</artifactId>
+            <version>0.1.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>hu.mktiti</groupId>
+            <artifactId>kreator-core</artifactId>
             <version>0.1</version>
         </dependency>
 
@@ -42,7 +49,7 @@
         <dependency>
             <groupId>hu.mktiti</groupId>
             <artifactId>TicTacToeTest</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>1.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>

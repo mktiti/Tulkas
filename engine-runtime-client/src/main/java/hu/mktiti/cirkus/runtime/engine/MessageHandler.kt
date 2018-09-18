@@ -1,9 +1,9 @@
 package hu.mktiti.cirkus.runtime.engine
 
 import hu.mktiti.cirkus.api.GameResult
+import hu.mktiti.cirkus.api.LogTarget
 import hu.mktiti.cirkus.runtime.common.CallTarget
-import hu.mktiti.cirkus.runtime.common.LogTarget
-import hu.mktiti.kreator.InjectableType
+import hu.mktiti.kreator.annotation.InjectableType
 import java.lang.Exception
 
 @InjectableType

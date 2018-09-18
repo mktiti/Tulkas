@@ -1,7 +1,7 @@
 package hu.mktiti.cirkus.runtime.common
 
-import hu.mktiti.kreator.Injectable
-import hu.mktiti.kreator.InjectableType
+import hu.mktiti.kreator.annotation.Injectable
+import hu.mktiti.kreator.annotation.InjectableType
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream

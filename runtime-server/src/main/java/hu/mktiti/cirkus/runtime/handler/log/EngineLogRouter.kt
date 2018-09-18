@@ -1,8 +1,8 @@
 package hu.mktiti.cirkus.runtime.handler.log
 
+import hu.mktiti.cirkus.api.LogTarget
+import hu.mktiti.cirkus.api.LogTarget.*
 import hu.mktiti.cirkus.runtime.common.LogEntry
-import hu.mktiti.cirkus.runtime.common.LogTarget
-import hu.mktiti.cirkus.runtime.common.LogTarget.*
 
 private data class LogMappingEntry(val selector: List<LogTarget>, val queue: LogQueue, val sender: LogSender)
 

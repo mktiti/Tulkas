@@ -1,7 +1,7 @@
 package hu.mktiti.cirkus.runtime.handler.log
 
 import hu.mktiti.cirkus.runtime.common.LogEntry
-import hu.mktiti.cirkus.runtime.common.LogTarget
+import hu.mktiti.cirkus.api.LogTarget.*
 
 interface LogRouter {
 
@@ -9,7 +9,7 @@ interface LogRouter {
 
 }
 
-private val validBotLogTargets = listOf(LogTarget.SELF, LogTarget.BOTS, LogTarget.ALL)
+private val validBotLogTargets = listOf(SELF, BOTS, ALL)
 
 fun botLogRouter(
         selfQueue: LogQueue

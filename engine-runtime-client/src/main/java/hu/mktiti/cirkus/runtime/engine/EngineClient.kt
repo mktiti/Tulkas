@@ -1,11 +1,12 @@
 package hu.mktiti.cirkus.runtime.engine
 
+import hu.mktiti.cirkus.api.GameEngineLogger
 import hu.mktiti.cirkus.runtime.base.Client
 import hu.mktiti.cirkus.runtime.base.ClientRuntime
 import hu.mktiti.cirkus.runtime.common.InQueue
 import hu.mktiti.cirkus.runtime.common.OutQueue
-import hu.mktiti.kreator.Injectable
-import hu.mktiti.kreator.inject
+import hu.mktiti.kreator.annotation.Injectable
+import hu.mktiti.kreator.api.inject
 
 @Injectable
 class EngineClient(
@@ -15,12 +16,13 @@ class EngineClient(
     override fun runClient(arguments: Map<String, String>, inQueue: InQueue, outQueue: OutQueue) {
 
         val messageHandler: MessageHandler = DefaultMessageHandler(inQueue, outQueue)
+        val logger: GameEngineLogger = MessageHandlerEngineLogger(messageHandler)
 
         messageHandler.sendActorBinaryRequest()
 
         println("Channel created")
 
-        val (engine, _, _) = actorHelper.createActors(messageHandler) ?: throw RuntimeException("Failed to create actors")
+        val (engine, _, _) = actorHelper.createActors(messageHandler, logger) ?: throw RuntimeException("Failed to create actors")
 
         println("Starting game")
         val result = engine.playGame()
