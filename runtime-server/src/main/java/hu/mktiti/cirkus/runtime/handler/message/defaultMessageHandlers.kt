@@ -18,7 +18,7 @@ class DefaultEngineMessageHandler(
         channel = channel
 ), EngineMessageHandler {
 
-    override fun sendMatchStartNotice() = sendMessage(MessageDto(StartNotice, null))
+    override fun sendMatchStartNotice() = sendMessage(MessageDto(StartNotice))
 
     override fun sendCallResult(callResult: CallResult, resultData: String?) = sendMessage(MessageDto(callResult, resultData))
 

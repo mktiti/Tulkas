@@ -17,7 +17,7 @@ class BotClient(
         private val botClientHelper: BotClientHelper = inject()
 ) : Client {
 
-    override fun runClient(arguments: Map<String, String>, inQueue: InQueue, outQueue: OutQueue) {
+    override fun runClient(inQueue: InQueue, outQueue: OutQueue) {
         val messageHandler: MessageHandler = DefaultMessageHandler(inQueue, outQueue)
 
         messageHandler.sendActorBinaryRequest()
@@ -42,5 +42,5 @@ class BotClient(
 }
 
 fun main(args: Array<String>) {
-    ClientRuntime().run(arrayOf("port", "12346"))
+    ClientRuntime().run()
 }

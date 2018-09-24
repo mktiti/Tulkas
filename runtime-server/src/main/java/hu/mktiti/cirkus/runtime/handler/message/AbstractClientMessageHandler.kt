@@ -9,14 +9,15 @@ open class AbstractClientMessageHandler(
         private val channel: Channel
 ) : ClientMessageHandler {
 
-    protected fun sendMessage(message: MessageDto) {
-        channel.sendMessage(message)
+    protected fun sendMessage(message: MessageDto): Boolean = channel.sendMessage(message)
+
+    override fun sendActorBinary(actor: ByteArray): Boolean = sendMessage(MessageDto(ActorJar))
+
+    override fun sendGameOverNotice() {
+        sendMessage(MessageDto(ShutdownNotice))
+        channel.shutdown()
     }
 
-    override fun sendActorBinary(actor: ByteArray) = sendMessage(MessageDto(ActorJar, null))
-
-    override fun sendGameOverNotice() = sendMessage(MessageDto(ShutdownNotice, null))
-
-    override fun waitForMessage(): MessageDto = channel.waitForMessage()
+    override fun waitForMessage(): MessageDto? = channel.waitForMessage()
 
 }

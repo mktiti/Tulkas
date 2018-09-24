@@ -13,7 +13,7 @@ class EngineClient(
         private val actorHelper: ActorHelper = inject()
 ) : Client {
 
-    override fun runClient(arguments: Map<String, String>, inQueue: InQueue, outQueue: OutQueue) {
+    override fun runClient(inQueue: InQueue, outQueue: OutQueue) {
 
         val messageHandler: MessageHandler = DefaultMessageHandler(inQueue, outQueue)
         val logger: GameEngineLogger = MessageHandlerEngineLogger(messageHandler)
@@ -36,5 +36,5 @@ class EngineClient(
 }
 
 fun main(args: Array<String>) {
-    ClientRuntime().run(arrayOf("port", "12345"))
+    ClientRuntime().run()
 }

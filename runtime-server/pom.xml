@@ -21,6 +21,12 @@
         </dependency>
 
         <dependency>
+            <groupId>hu.mktiti.cirkus</groupId>
+            <artifactId>game-runtime-api</artifactId>
+            <version>0.2.3-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
             <groupId>hu.mktiti</groupId>
             <artifactId>kreator-annotation</artifactId>
             <version>0.1</version>
@@ -39,10 +45,17 @@
         </dependency>
 
         <dependency>
+            <groupId>hu.mktiti</groupId>
+            <artifactId>kreator-property</artifactId>
+            <version>0.1</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib-jdk8</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test</artifactId>

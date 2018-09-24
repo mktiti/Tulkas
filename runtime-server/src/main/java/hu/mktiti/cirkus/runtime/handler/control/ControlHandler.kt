@@ -1,6 +1,7 @@
 package hu.mktiti.cirkus.runtime.handler.control
 
 import hu.mktiti.cirkus.runtime.common.CallTarget
+import hu.mktiti.cirkus.runtime.common.MessageException
 import hu.mktiti.cirkus.runtime.handler.message.BotMessageHandler
 import hu.mktiti.cirkus.runtime.handler.message.EngineMessageHandler
 
@@ -15,16 +16,29 @@ class ControlHandler(
 
     override fun run() {
         try {
-            while (true) {
+            while (controlState !is Crash && controlState !is MatchEnded) {
                 val controlMessage = controlQueue.getMessage()
-                println("Routing message $controlMessage")
                 routeMessage(controlMessage)
-                println("Control state: $controlState")
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (ise: IllegalStateException) {
+            println("Illegal state exception in control state $controlState")
+        }
+
+        sendGameOverToAll()
+
+        controlState.let {
+            if (it is Crash) {
+                println("Game crashed: ${it.message}")
+            }
         }
     }
+
+    private fun atState(code: (ControlState) -> Unit) = controlState.let(code)
+
+    private fun modState(code: (ControlState) -> ControlState) { controlState = controlState.let(code) }
+
+    private fun crashable(nextState: ControlState, sender: () -> Boolean): ControlState =
+            if (sender()) nextState else Crash("Unable to send message")
 
     private fun routeMessage(message: ControlMessage) {
         when (message) {
@@ -36,60 +50,50 @@ class ControlHandler(
         }
     }
 
-    private fun actorBinaryRequest(request: ActorBinaryRequest) = controlState.let { state ->
-        if (state !is ConnectionAwait) {
-            sendGameOverToAll()
-            throw IllegalStateException("Not waiting for connection!")
-        } else {
-            if (!state.connect(request.actor)) {
-                sendGameOverToAll()
-                throw IllegalStateException("Actor ${request.actor} already connected!")
-            } else if (state.allConnected) {
+    private fun actorBinaryRequest(request: ActorBinaryRequest) = atState { state ->
+        if (state !is ConnectionAwait || !state.connect(request.actor)) {
+            controlState = Crash("Not waiting for ${request.actor} connection")
+
+        } else if (state.allConnected) {
+            controlState = crashable(WaitingForEngine) {
                 engineHandler.sendMatchStartNotice()
-                controlState = WaitingForEngine
             }
         }
     }
 
-    private fun proxyCall(proxyCallMessage: ProxyCallMessage) = controlState.let { state ->
+    private fun proxyCall(proxyCallMessage: ProxyCallMessage) = modState { state ->
         if (state !is WaitingForEngine) {
-            sendGameOverToAll()
-            throw IllegalStateException("Not waiting for engine!")
+            Crash("Not waiting for engine!")
         } else if (proxyCallMessage.actor != Actor.ENGINE) {
-            sendGameOverToAll()
-            throw IllegalStateException("Only engine can proxy call!")
+           Crash("Only engine can proxy call!")
         } else {
             val targetHandler = if (proxyCallMessage.proxyCall.target == CallTarget.BOT_A) botAHandler else botBHandler
-            targetHandler.proxyCall(proxyCallMessage.proxyCall, proxyCallMessage.callData)
-            controlState = WaitingForBot(proxyCallMessage.proxyCall.target)
+
+            crashable(WaitingForBot(proxyCallMessage.proxyCall.target)) {
+                targetHandler.proxyCall(proxyCallMessage.proxyCall, proxyCallMessage.callData)
+            }
         }
     }
 
-    private fun callResult(callResultMessage: CallResultMessage) = controlState.let { state ->
+    private fun callResult(callResultMessage: CallResultMessage) = modState { state ->
         if (state !is WaitingForBot || state.bot != callResultMessage.actor.callTarget) {
-            sendGameOverToAll()
-            throw IllegalStateException("Not waiting for ${callResultMessage.actor}!")
+            Crash("Not waiting for ${callResultMessage.actor}!")
         } else {
-            engineHandler.sendCallResult(callResultMessage.result, callResultMessage.responseData)
-            controlState = WaitingForEngine
+            crashable(WaitingForEngine) {
+                engineHandler.sendCallResult(callResultMessage.result, callResultMessage.responseData)
+            }
         }
     }
 
-    private fun gameResult(gameResultMessage: GameResultMessage) = controlState.let { state ->
-        sendGameOverToAll()
-        if (state !is WaitingForEngine) {
-            throw IllegalStateException("Not waiting for engine!")
-        } else if (gameResultMessage.actor != Actor.ENGINE) {
-            throw IllegalStateException("Only engine can proxy call!")
-        } else {
-            controlState = MatchEnded()
+    private fun gameResult(gameResultMessage: GameResultMessage) = modState { state ->
+        when {
+            state !is WaitingForEngine ->              Crash("Not waiting for engine!")
+            gameResultMessage.actor != Actor.ENGINE -> Crash("Only engine can proxy call!")
+            else -> MatchEnded()
         }
     }
 
-    private fun error(error: ErrorResultMessage) = controlState.let { state ->
-        sendGameOverToAll()
-        controlState = FatalError("error")
-    }
+    private fun error(error: ErrorResultMessage) = modState { FatalError("error") }
 
     private fun sendGameOverToAll() {
         listOf(engineHandler, botAHandler, botBHandler).forEach {

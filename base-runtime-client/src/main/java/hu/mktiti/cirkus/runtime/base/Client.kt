@@ -7,6 +7,6 @@ import hu.mktiti.kreator.annotation.InjectableType
 @InjectableType
 interface Client {
 
-    fun runClient(arguments: Map<String, String>, inQueue: InQueue, outQueue: OutQueue)
+    fun runClient(inQueue: InQueue, outQueue: OutQueue)
 
 }

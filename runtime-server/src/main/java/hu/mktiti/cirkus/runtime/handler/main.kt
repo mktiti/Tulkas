@@ -1,6 +1,8 @@
 package hu.mktiti.cirkus.runtime.handler
 
 import hu.mktiti.cirkus.runtime.common.SocketChannel
+import hu.mktiti.cirkus.runtime.handler.client.startBot
+import hu.mktiti.cirkus.runtime.handler.client.startEngine
 import hu.mktiti.cirkus.runtime.handler.control.Actor
 import hu.mktiti.cirkus.runtime.handler.control.ControlHandler
 import hu.mktiti.cirkus.runtime.handler.control.ControlQueue
@@ -18,7 +20,6 @@ import kotlin.concurrent.thread
 fun createSocket(port: Int): Socket = ServerSocket(port).accept()
 
 fun main(args: Array<String>) {
-
     val enginePort = 12345
     val botAPort   = 12346
     val botBPort   = 12347
@@ -34,7 +35,11 @@ fun main(args: Array<String>) {
     val botASocketFuture   = executorService.submit(Callable { createSocket(botAPort) })
     val botBSocketFuture   = executorService.submit(Callable { createSocket(botBPort) })
 
-    println("Start clients! Ports: engine=$enginePort, botA=$botAPort, botB=$botBPort")
+    println("Starting clients! Ports: engine=$enginePort, botA=$botAPort, botB=$botBPort")
+
+    val engineProcess = startEngine(enginePort)
+    val botAProcess   = startBot(botAPort)
+    val botBProcess   = startBot(botBPort)
 
     val engineChannel = SocketChannel(engineSocketFuture.get())
     val botAChannel   = SocketChannel(botASocketFuture.get())
@@ -54,6 +59,13 @@ fun main(args: Array<String>) {
     thread(name = "Engine Receiver", start = true) { engineReceiver.run() }
     thread(name = "Bot A Receiver", start = true) { botAReceiver.run() }
     thread(name = "Bot B Receiver", start = true) { botBReceiver.run() }
-    thread(name = "Control handler", start = true) { controlHandler.run() }
+
+    thread(name = "Control handler", start = true) { controlHandler.run() }.join()
+
+    engineProcess.destroyForcibly()
+    botAProcess.destroyForcibly()
+    botBProcess.destroyForcibly()
+
+    System.exit(0)
 
 }

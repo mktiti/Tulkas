@@ -1,20 +1,16 @@
 package hu.mktiti.cirkus.api;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
 public final class GameResult implements Serializable {
 
-    enum ResultType implements Serializable { CRASH, ERROR, WIN, DRAW }
-    enum Actor implements Serializable { BOT_A, BOT_B, ENGINE }
+    public enum ResultType implements Serializable { CRASH, ERROR, WIN, DRAW }
+    public enum Actor implements Serializable { BOT_A, BOT_B, ENGINE }
 
-    private final ResultType type;
-    private final Actor actor;
+    public final ResultType type;
+    public final Actor actor;
 
-    @JsonCreator
-    private GameResult(@JsonProperty("type") final ResultType type, @JsonProperty("actor") final Actor actor) {
+    public GameResult(final ResultType type, final Actor actor) {
         this.type = type;
         this.actor = actor;
     }
@@ -58,13 +54,5 @@ public final class GameResult implements Serializable {
 
     public boolean doBWins() {
         return doBotWins(Actor.BOT_B);
-    }
-
-    public ResultType getType() {
-        return type;
-    }
-
-    public Actor getActor() {
-        return actor;
     }
 }

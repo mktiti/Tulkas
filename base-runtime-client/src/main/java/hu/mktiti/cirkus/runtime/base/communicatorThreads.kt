@@ -1,50 +1,35 @@
 package hu.mktiti.cirkus.runtime.base
 
-import hu.mktiti.cirkus.runtime.common.Channel
-import hu.mktiti.cirkus.runtime.common.InQueue
-import hu.mktiti.cirkus.runtime.common.OutQueue
-import hu.mktiti.cirkus.runtime.common.ShutdownNotice
-import java.io.IOException
+import hu.mktiti.cirkus.runtime.common.*
+import hu.mktiti.cirkus.runtime.common.util.forever
+import hu.mktiti.kreator.api.inject
 
 class Receiver(
-        private val channel: Channel,
-        private val inQueue: InQueue
+        private val channel: Channel = inject(),
+        private val inQueue: InQueue = inject()
 ) : Runnable {
 
     override fun run() {
-        try {
-            while (true) {
-                val messageDto = channel.waitForMessage()
+        forever {
+            val messageDto = channel.waitForMessage()
 
-                if (messageDto.header is ShutdownNotice) {
-                    System.exit(0)
-                    return
-                } else {
-                    inQueue.addMessage(messageDto)
-                }
+            if (messageDto == null || messageDto.header is ShutdownNotice) {
+                return
+            } else {
+                inQueue.addMessage(messageDto)
             }
-        } catch (ise: IllegalStateException) {
-            ise.printStackTrace()
-        } catch (ioe: IOException) {
-            ioe.printStackTrace()
         }
     }
 
 }
 
 class Sender(
-        private val channel: Channel,
-        private val outQueue: OutQueue
+        private val channel: Channel = inject(),
+        private val outQueue: OutQueue = inject()
 ) : Runnable {
 
     override fun run() {
-        try {
-            while (true) {
-                channel.sendMessage(outQueue.getMessage())
-            }
-        } catch (ioe: IOException) {
-            ioe.printStackTrace()
-        }
+        while (channel.sendMessage(outQueue.getMessage())) { }
     }
 
 }

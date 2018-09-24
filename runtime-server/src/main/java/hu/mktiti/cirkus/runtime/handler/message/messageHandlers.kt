@@ -8,26 +8,26 @@ import hu.mktiti.kreator.annotation.InjectableType
 @InjectableType
 interface ClientMessageHandler {
 
-    fun sendActorBinary(actor: ByteArray)
+    fun sendActorBinary(actor: ByteArray): Boolean
 
     fun sendGameOverNotice()
 
-    fun waitForMessage(): MessageDto
+    fun waitForMessage(): MessageDto?
 
 }
 
 @InjectableType
 interface BotMessageHandler : ClientMessageHandler {
 
-    fun proxyCall(proxyCall: ProxyCall, callData: String?)
+    fun proxyCall(proxyCall: ProxyCall, callData: String?): Boolean
 
 }
 
 @InjectableType
 interface EngineMessageHandler : ClientMessageHandler {
 
-    fun sendMatchStartNotice()
+    fun sendMatchStartNotice(): Boolean
 
-    fun sendCallResult(callResult: CallResult, resultData: String?)
+    fun sendCallResult(callResult: CallResult, resultData: String?): Boolean
 
 }

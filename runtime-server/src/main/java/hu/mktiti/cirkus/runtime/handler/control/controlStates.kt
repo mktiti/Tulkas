@@ -26,3 +26,5 @@ data class WaitingForBot(
 data class FatalError(val errorMessage: String) : ControlState(true)
 
 data class MatchEnded(val result: GameResult? = null) : ControlState(true)
+
+data class Crash(val message: String) : ControlState(true)

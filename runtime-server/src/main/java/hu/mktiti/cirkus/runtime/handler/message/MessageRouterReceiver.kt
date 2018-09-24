@@ -1,6 +1,7 @@
 package hu.mktiti.cirkus.runtime.handler.message
 
 import hu.mktiti.cirkus.runtime.common.*
+import hu.mktiti.cirkus.runtime.common.util.forever
 import hu.mktiti.cirkus.runtime.handler.control.*
 import hu.mktiti.cirkus.runtime.handler.log.LogRouter
 import java.io.IOException
@@ -23,25 +24,18 @@ class MessageRouterReceiver(
             is ErrorResult -> controlQueue.addMessage(ErrorResultMessage(actor, messageDto.dataMessage))
             is ActorJar    -> controlQueue.addMessage(ActorBinaryRequest(actor))
 
-            else -> return true
+            is ShutdownNotice, is StartNotice -> return true
         }
         return false
     }
 
     override fun run() {
-        try {
-            while (true) {
-                val messageDto = clientHandler.waitForMessage()
+        forever {
+            val messageDto = clientHandler.waitForMessage()
 
-                if (onMessage(messageDto)) {
-                    System.exit(0)
-                    return
-                }
+            if (messageDto == null || onMessage(messageDto)) {
+                return
             }
-        } catch (ise: IllegalStateException) {
-            ise.printStackTrace()
-        } catch (ioe: IOException) {
-            ioe.printStackTrace()
         }
     }
 

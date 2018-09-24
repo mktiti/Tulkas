@@ -13,15 +13,10 @@ abstract class MessageQueue {
 
 }
 
-/**
- * Should never have more than 3 messages
- * Bot client => 1 Actor jar, 1 Proxy call, 1 Shutdown notice
- * Engine client => (1 Proxy call response / 1 Actor binary), 1 Match init, 1 Shutdown notice
- */
-class InQueue : MessageQueue(){
+class InQueue : MessageQueue() {
 
     override fun addMessage(message: MessageDto) {
-        // Non-blocking (Exception on limit reach)
+        // Non-blocking
         queue.add(message)
     }
 
