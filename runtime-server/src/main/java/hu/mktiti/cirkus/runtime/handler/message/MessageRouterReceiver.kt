@@ -4,7 +4,6 @@ import hu.mktiti.cirkus.runtime.common.*
 import hu.mktiti.cirkus.runtime.common.util.forever
 import hu.mktiti.cirkus.runtime.handler.control.*
 import hu.mktiti.cirkus.runtime.handler.log.LogRouter
-import java.io.IOException
 
 class MessageRouterReceiver(
         private val clientHandler: ClientMessageHandler,

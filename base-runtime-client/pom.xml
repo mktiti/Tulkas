@@ -11,21 +11,13 @@
     </parent>
 
     <artifactId>base-runtime-client</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>${cirkus.runtime.version}</version>
 
     <dependencies>
         <dependency>
             <groupId>hu.mktiti.cirkus</groupId>
             <artifactId>runtime-common</artifactId>
-            <version>0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>hu.mktiti.cirkus</groupId>
-            <artifactId>game-runtime-api</artifactId>
-            <scope>provided</scope>
-            <version>0.2.3-SNAPSHOT</version>
+            <version>${cirkus.runtime.version}</version>
         </dependency>
 
         <dependency>
@@ -34,34 +26,7 @@
             <version>0.9.11</version>
         </dependency>
 
-        <dependency>
-            <groupId>hu.mktiti</groupId>
-            <artifactId>kreator-annotation</artifactId>
-            <scope>provided</scope>
-            <version>0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>hu.mktiti</groupId>
-            <artifactId>kreator-api</artifactId>
-            <scope>provided</scope>
-            <version>0.1.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>hu.mktiti</groupId>
-            <artifactId>kreator-property</artifactId>
-            <scope>provided</scope>
-            <version>0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-            <scope>provided</scope>
-            <version>${kotlin.version}</version>
-        </dependency>
-        <dependency>
+      <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test</artifactId>
             <version>${kotlin.version}</version>

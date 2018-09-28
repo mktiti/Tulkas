@@ -12,7 +12,7 @@ fun startEngine(port: Int) = startClient("engine", port)
 private fun startClient(clientName: String, port: Int): Process {
     val path = File(clientName + CLIENT_SCRIPT_POST).absolutePath
     return with(ProcessBuilder(path, HOST, port.toString())) {
-        //redirectOutput(ProcessBuilder.Redirect.INHERIT)
+        redirectOutput(ProcessBuilder.Redirect.INHERIT)
         redirectError(ProcessBuilder.Redirect.INHERIT)
         start()
     }

@@ -1,7 +1,7 @@
 package hu.mktiti.cirkus.runtime.handler.log
 
-import hu.mktiti.cirkus.runtime.common.LogEntry
 import hu.mktiti.cirkus.api.LogTarget.*
+import hu.mktiti.cirkus.runtime.common.LogEntry
 
 interface LogRouter {
 

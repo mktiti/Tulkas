@@ -31,6 +31,8 @@ object ShutdownNotice : Header()
 
 object StartNotice : Header()
 
-
 // Data
 data class Call(val method: String, val params: List<Any?>) : Serializable
+
+// Helper
+fun selfLogMessage(message: String) = Message(LogEntry(LogTarget.SELF, message))

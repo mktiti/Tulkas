@@ -1,6 +1,9 @@
 package hu.mktiti.cirkus.runtime.base
 
-import hu.mktiti.cirkus.runtime.common.*
+import hu.mktiti.cirkus.runtime.common.Channel
+import hu.mktiti.cirkus.runtime.common.InQueue
+import hu.mktiti.cirkus.runtime.common.OutQueue
+import hu.mktiti.cirkus.runtime.common.ShutdownNotice
 import hu.mktiti.cirkus.runtime.common.util.forever
 import hu.mktiti.kreator.api.inject
 
@@ -29,7 +32,14 @@ class Sender(
 ) : Runnable {
 
     override fun run() {
-        while (channel.sendMessage(outQueue.getMessage())) { }
+        while (true) {
+            val message = outQueue.getMessage()
+            println("Out message: ${message.header}")
+
+            if (!channel.sendMessage(message)) {
+                return
+            }
+        }
     }
 
 }

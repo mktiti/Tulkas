@@ -11,62 +11,21 @@
     </parent>
 
     <artifactId>bot-runtime-client</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>${cirkus.runtime.version}</version>
 
     <dependencies>
         <dependency>
             <groupId>hu.mktiti.cirkus</groupId>
             <artifactId>base-runtime-client</artifactId>
-            <version>0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>hu.mktiti.cirkus</groupId>
-            <artifactId>runtime-common</artifactId>
-            <version>0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>hu.mktiti.cirkus</groupId>
-            <artifactId>game-runtime-api</artifactId>
-            <version>0.2.3-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.9.11</version>
-        </dependency>
-
-        <dependency>
-            <groupId>hu.mktiti</groupId>
-            <artifactId>kreator-annotation</artifactId>
-            <version>0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>hu.mktiti</groupId>
-            <artifactId>kreator-api</artifactId>
-            <version>0.1.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>hu.mktiti</groupId>
-            <artifactId>kreator-property</artifactId>
-            <version>0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>hu.mktiti</groupId>
-            <artifactId>kreator-core</artifactId>
-            <version>0.1</version>
+            <version>${cirkus.runtime.version}</version>
         </dependency>
 
         <!-- Test game -->
         <dependency>
             <groupId>hu.mktiti</groupId>
             <artifactId>TicTacToeTest</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
+            <version>1.0.4-SNAPSHOT</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>

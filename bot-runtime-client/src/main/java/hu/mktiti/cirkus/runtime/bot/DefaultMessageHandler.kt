@@ -1,6 +1,5 @@
 package hu.mktiti.cirkus.runtime.bot
 
-import hu.mktiti.cirkus.api.LogTarget
 import hu.mktiti.cirkus.runtime.common.*
 import hu.mktiti.kreator.api.inject
 import java.util.*
@@ -19,7 +18,7 @@ class DefaultMessageHandler(
 
     override fun sendResponse(method: String, data: Any?) = sendMessage(Message(CallResult(method), data))
 
-    override fun log(message: String) = sendMessage(Message(LogEntry(LogTarget.SELF, message)))
+    override fun log(message: String) = sendMessage(selfLogMessage(message))
 
     override fun waitForCall(): Call? {
         val message = messageConverter.fromDto(inQueue.getMessage())

@@ -1,6 +1,6 @@
 package hu.mktiti.cirkus.api;
 
-public final class ConsoleLogger implements GameEngineLogger, GameBotLogger {
+public final class ConsoleEngineLogger implements GameEngineLogger {
 
     @Override
     public void log(final String message) {

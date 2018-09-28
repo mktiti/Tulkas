@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import static hu.mktiti.cirkus.api.GameResult.*;
 
-public abstract class DuelGameEngine<T extends BotInterface> implements GameEngine<T> {
+public abstract class DuelGameEngine<T> implements GameEngine<T> {
 
     protected final T botA;
     protected final T botB;
@@ -12,6 +12,10 @@ public abstract class DuelGameEngine<T extends BotInterface> implements GameEngi
 
     private boolean isCurrentlyBotA = true;
     private T currentBot;
+
+    public DuelGameEngine(final T botA, final T botB) {
+        this(botA, botB, EngineLoggerFactory.getLogger());
+    }
 
     public DuelGameEngine(final T botA, final T botB, final GameEngineLogger engineLogger) {
         this.botA = botA;
@@ -26,7 +30,7 @@ public abstract class DuelGameEngine<T extends BotInterface> implements GameEngi
 
     protected abstract Optional<GameResult> playTurn();
 
-    private final void nextTurn() {
+    private void nextTurn() {
         isCurrentlyBotA = !isCurrentlyBotA;
         currentBot = bot(isCurrentlyBotA);
     }

@@ -14,6 +14,14 @@
         <maven.compiler.target>1.9</maven.compiler.target>
 
         <kotlin.version>1.2.61</kotlin.version>
+
+        <cirkus.game-api.version>2.3.0-SNAPSHOT</cirkus.game-api.version>
+        <cirkus.runtime.version>0.1.1-SNAPSHOT</cirkus.runtime.version>
+
+        <kreator.annotation.version>0.1</kreator.annotation.version>
+        <kreator.api.version>0.1.1</kreator.api.version>
+        <kreator.core.version>0.1.1</kreator.core.version>
+        <kreator.property.version>0.1.1</kreator.property.version>
     </properties>
 
     <modules>
@@ -24,6 +32,7 @@
         <module>runtime-server</module>
 
         <module>game-runtime-api</module>
+        <module>engine-runtime-api</module>
     </modules>
 
     <packaging>

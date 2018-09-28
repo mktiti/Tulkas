@@ -3,7 +3,6 @@ package hu.mktiti.cirkus.runtime.base
 import hu.mktiti.cirkus.runtime.common.*
 import hu.mktiti.kreator.api.inject
 import hu.mktiti.kreator.property.property
-import java.net.Socket
 import kotlin.concurrent.thread
 
 class ClientRuntime(

@@ -1,7 +1,7 @@
 package hu.mktiti.cirkus.runtime.bot
 
 import hu.mktiti.cirkus.api.BotInterface
-import hu.mktiti.cirkus.api.GameBotLogger
+import hu.mktiti.cirkus.api.BotLoggerFactory
 import hu.mktiti.cirkus.runtime.base.Client
 import hu.mktiti.cirkus.runtime.base.ClientRuntime
 import hu.mktiti.cirkus.runtime.base.RuntimeClientHelper
@@ -21,15 +21,16 @@ class BotClient(
         val messageHandler: MessageHandler = DefaultMessageHandler(inQueue, outQueue)
 
         messageHandler.sendActorBinaryRequest()
-        val botLogger: GameBotLogger = MessageHandlerBotLogger(messageHandler)
+        BotLoggerFactory.setDefaultLogger(MessageHandlerBotLogger(messageHandler))
 
         try {
             val botInterface: Class<out BotInterface> = clientHelper.searchForBotInterface() ?: return
-            val bot: BotInterface = botClientHelper.searchAndCreateBotImplementation(botInterface, botLogger) ?: return
+            val bot: BotInterface = botClientHelper.searchAndCreateBotImplementation(botInterface) ?: return
             val proxy: BotProxy = botClientHelper.createProxyForBot(botInterface, bot)
 
             while (true) {
                 val call: Call = messageHandler.waitForCall() ?: break
+                println("Proxy call received: method=${call.method}, params=${call.params}")
                 val response = proxy.callMethod(call.method, call.params)
                 messageHandler.sendResponse(call.method, response)
             }
