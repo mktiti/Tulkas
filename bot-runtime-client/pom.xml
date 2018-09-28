@@ -22,12 +22,6 @@
 
         <!-- Test game -->
         <dependency>
-            <groupId>hu.mktiti</groupId>
-            <artifactId>TicTacToeTest</artifactId>
-            <version>1.0.4-SNAPSHOT</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib-jdk8</artifactId>
             <version>${kotlin.version}</version>

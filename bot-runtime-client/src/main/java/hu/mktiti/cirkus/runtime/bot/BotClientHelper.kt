@@ -1,11 +1,11 @@
 package hu.mktiti.cirkus.runtime.bot
 
 import hu.mktiti.cirkus.api.BotInterface
+import hu.mktiti.cirkus.runtime.base.BinaryClassLoader
 import hu.mktiti.cirkus.runtime.common.BotDefinitionException
 import hu.mktiti.kreator.annotation.Injectable
 import hu.mktiti.kreator.annotation.InjectableType
 import hu.mktiti.kreator.api.inject
-import org.reflections.Reflections
 import java.lang.reflect.Constructor
 import java.lang.reflect.Modifier
 
@@ -20,7 +20,7 @@ interface BotClientHelper {
 
 @Injectable(default = true)
 class DefaultBotClientHelper(
-        private val reflections: Reflections = inject()
+        private val binaryClassLoader: BinaryClassLoader = inject()
 ) : BotClientHelper {
 
     override fun createProxyForBot(botInterface: Class<out BotInterface>, bot: BotInterface): BotProxy {
@@ -32,10 +32,12 @@ class DefaultBotClientHelper(
     }
 
     override fun <I : BotInterface> searchAndCreateBotImplementation(botInterface: Class<I>): I? {
-        val classes: List<Class<out I>> = reflections.getSubTypesOf(botInterface).toList()
+        val candidateClasses: List<Class<*>> = binaryClassLoader.allClasses().filter { botInterface.isAssignableFrom(it) }
         val constructors: List<Constructor<out I>> =
-                classes.filter { !Modifier.isAbstract(it.modifiers) && Modifier.isPublic(it.modifiers) }
-                       .mapNotNull { it.getConstructor() }
+                candidateClasses
+                        .filter { !Modifier.isAbstract(it.modifiers) && Modifier.isPublic(it.modifiers) }
+                        .map { it.asSubclass(botInterface) }
+                        .mapNotNull { it.getConstructor() }
 
         return when (constructors.size) {
             0 -> null

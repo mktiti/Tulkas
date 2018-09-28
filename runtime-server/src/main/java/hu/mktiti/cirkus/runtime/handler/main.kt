@@ -11,19 +11,34 @@ import hu.mktiti.cirkus.runtime.handler.log.LogQueue
 import hu.mktiti.cirkus.runtime.handler.log.LogRouter
 import hu.mktiti.cirkus.runtime.handler.log.botLogRouter
 import hu.mktiti.cirkus.runtime.handler.message.*
+import hu.mktiti.kreator.property.property
 import java.net.ServerSocket
 import java.net.Socket
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
 
 fun createSocket(port: Int): Socket = ServerSocket(port).accept()
 
+fun loadJarBinary(path: String): ByteArray = Files.readAllBytes(Paths.get(path))
+
 fun main(args: Array<String>) {
     val ports = ActorsData(12345, 12346, 12347)
 
-    val controlQueue = ControlQueue()
+    val jars = try {
+        ActorsData(
+                property("ENGINE_JAR_PATH"),
+                property("BOT_JAR_PATH")
+        ).map(::loadJarBinary)
+    } catch (e: Exception) {
+        println("Exception while reading jar file: ${e.message}")
+        System.exit(1)
+        return
+    }
 
+    val controlQueue = ControlQueue()
     val logQueues = ActorsData(::LogQueue)
 
     val executorService = Executors.newFixedThreadPool(3)
@@ -45,7 +60,7 @@ fun main(args: Array<String>) {
     val botAReceiver   = MessageRouterReceiver(botAHandler, Actor.BOT_A, botLogRouter(logQueues.botA), controlQueue)
     val botBReceiver   = MessageRouterReceiver(botBHandler, Actor.BOT_B, botLogRouter(logQueues.botB), controlQueue)
 
-    val controlHandler = ControlHandler(engineHandler, botAHandler, botBHandler, controlQueue)
+    val controlHandler = ControlHandler(engineHandler, botAHandler, botBHandler, controlQueue, jars)
 
     thread(name = "Engine Receiver", start = true) { engineReceiver.run() }
     thread(name = "Bot A Receiver", start = true) { botAReceiver.run() }
@@ -54,6 +69,10 @@ fun main(args: Array<String>) {
     thread(name = "Control handler", start = true) { controlHandler.run() }.join()
 
     processes.map(Process::destroyForcibly)
+
+    println("Logs: ${
+        logQueues.map(LogQueue::getAll)
+    }")
 
     System.exit(0)
 

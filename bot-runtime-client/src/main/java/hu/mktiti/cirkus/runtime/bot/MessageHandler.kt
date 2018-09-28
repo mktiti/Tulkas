@@ -7,7 +7,7 @@ import java.lang.Exception
 @InjectableType
 interface MessageHandler {
 
-    fun sendActorBinaryRequest()
+    fun loadActorBinary(): ByteArray?
 
     fun reportBotError(exception: Exception)
 

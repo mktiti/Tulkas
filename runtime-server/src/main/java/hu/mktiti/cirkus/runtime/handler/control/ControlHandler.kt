@@ -3,22 +3,25 @@ package hu.mktiti.cirkus.runtime.handler.control
 import hu.mktiti.cirkus.runtime.common.CallTarget
 import hu.mktiti.cirkus.runtime.handler.ActorsData
 import hu.mktiti.cirkus.runtime.handler.message.BotMessageHandler
+import hu.mktiti.cirkus.runtime.handler.message.ClientMessageHandler
 import hu.mktiti.cirkus.runtime.handler.message.EngineMessageHandler
 
 class ControlHandler(
         private val engineHandler: EngineMessageHandler,
         private val botAHandler: BotMessageHandler,
         private val botBHandler: BotMessageHandler,
-        private val controlQueue: ControlQueue
+        private val controlQueue: ControlQueue,
+        private val jars: ActorsData<ByteArray>
 ) : Runnable {
 
     private var controlState: ControlState = ConnectionAwait()
 
     override fun run() {
         try {
-            while (controlState !is Crash && controlState !is MatchEnded) {
+            while (!controlState.final) {
                 val controlMessage = controlQueue.getMessage()
                 routeMessage(controlMessage)
+                println("Control stat: $controlState")
             }
         } catch (ise: IllegalStateException) {
             println("Illegal state exception in control state $controlState")
@@ -50,13 +53,25 @@ class ControlHandler(
         }
     }
 
+    private fun handler(actor: Actor): ClientMessageHandler = when (actor) {
+        Actor.ENGINE -> engineHandler
+        Actor.BOT_A -> botAHandler
+        Actor.BOT_B -> botBHandler
+    }
+
     private fun actorBinaryRequest(request: ActorBinaryRequest) = atState { state ->
         if (state !is ConnectionAwait || !state.connect(request.actor)) {
             controlState = Crash("Not waiting for ${request.actor} connection")
 
-        } else if (state.allConnected) {
-            controlState = crashable(WaitingForEngine) {
-                engineHandler.sendMatchStartNotice()
+        } else {
+            request.actor.let {
+                handler(it).sendActorBinary(jars[it])
+            }
+
+            if (state.allConnected) {
+                controlState = crashable(WaitingForEngine) {
+                    engineHandler.sendMatchStartNotice()
+                }
             }
         }
     }
@@ -93,7 +108,9 @@ class ControlHandler(
         }
     }
 
-    private fun error(error: ErrorResultMessage) = modState { FatalError("error") }
+    private fun error(error: ErrorResultMessage) = modState {
+        FatalError("Error from ${error.actor}: ${error.errorData}")
+    }
 
     private fun sendGameOverToAll() {
         listOf(engineHandler, botAHandler, botBHandler).forEach {

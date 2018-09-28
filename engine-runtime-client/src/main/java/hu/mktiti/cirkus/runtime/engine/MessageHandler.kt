@@ -9,7 +9,7 @@ import java.lang.Exception
 @InjectableType
 interface MessageHandler {
 
-    fun sendActorBinaryRequest()
+    fun loadActorBinary(): ByteArray?
 
     fun callFunction(target: CallTarget, methodName: String, params: List<Any?>): Any?
 
@@ -19,4 +19,5 @@ interface MessageHandler {
 
     fun reportError(exception: Exception)
 
+    fun waitForStart(): Boolean
 }

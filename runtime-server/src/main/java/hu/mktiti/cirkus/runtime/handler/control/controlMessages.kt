@@ -18,4 +18,4 @@ class CallResultMessage(actor: Actor, val result: CallResult, val responseData: 
 
 class GameResultMessage(actor: Actor, val gameResultData: String?) : ControlMessage(actor)
 
-class ErrorResultMessage(actor: Actor, errorData: String?) : ControlMessage(actor)
+class ErrorResultMessage(actor: Actor, val errorData: String?) : ControlMessage(actor)

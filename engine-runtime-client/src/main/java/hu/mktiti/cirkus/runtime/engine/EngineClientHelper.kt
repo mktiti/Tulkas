@@ -2,11 +2,11 @@ package hu.mktiti.cirkus.runtime.engine
 
 import hu.mktiti.cirkus.api.BotInterface
 import hu.mktiti.cirkus.api.GameEngine
+import hu.mktiti.cirkus.runtime.base.BinaryClassLoader
 import hu.mktiti.cirkus.runtime.common.BotDefinitionException
 import hu.mktiti.kreator.annotation.Injectable
 import hu.mktiti.kreator.annotation.InjectableType
 import hu.mktiti.kreator.api.inject
-import org.reflections.Reflections
 import java.lang.reflect.Constructor
 import java.lang.reflect.Modifier
 import java.lang.reflect.Proxy
@@ -20,26 +20,22 @@ interface EngineClientHelper {
 
 }
 
-@Injectable(default = true)
+@Injectable
 class DefaultEngineClientHelper(
-        private val reflections: Reflections = inject()
+        private val binaryClassLoader: BinaryClassLoader = inject()
 ) : EngineClientHelper {
 
     override fun <T : BotInterface> createProxyForBot(botClass: Class<T>, invokeLogic: (String, List<Any?>) -> Any?): T {
-        val proxy: Any = Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), arrayOf(botClass)) { _, method, arguments ->
+        return botClass.cast(Proxy.newProxyInstance(binaryClassLoader, arrayOf(botClass)) { _, method, arguments ->
             invokeLogic(method.name, arguments.asList())
-        }
-        return if (botClass.isInstance(proxy)) {
-            botClass.cast(proxy)
-        } else {
-            throw RuntimeException()
-        }
+        })
     }
 
     override fun <T : BotInterface> searchAndCreateEngine(botClass: Class<T>, botA: BotInterface, botB: BotInterface): GameEngine<*>? {
-        val classes: List<Class<out GameEngine<*>>> = reflections.getSubTypesOf(GameEngine::class.java).toList()
+
+        val candidateClasses: List<Class<*>> = binaryClassLoader.allClasses().filter { GameEngine::class.java.isAssignableFrom(it) }
         val constructors: List<Constructor<*>> =
-                classes
+                candidateClasses
                         .filter { !Modifier.isAbstract(it.modifiers) && Modifier.isPublic(it.modifiers) }
                         .flatMap { it.constructors.toList() }
                         .filter { it.parameterCount == 2 && it.parameterTypes.all { p ->  p.isAssignableFrom(botClass) } }

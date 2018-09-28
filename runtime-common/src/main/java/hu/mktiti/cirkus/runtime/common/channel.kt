@@ -38,8 +38,6 @@ class SocketChannel(
     override fun sendMessage(message: MessageDto): Boolean = try {
         val messageString = messageSerializer.serializeMessageDto(message)
 
-        println("Out: $messageString")
-
         outputWriter.print(messageString)
         outputWriter.flush()
         true

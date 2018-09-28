@@ -1,11 +1,11 @@
-package hu.mktiti.cirkus.runtime.common
+package hu.mktiti.cirkus.runtime.base
 
+import hu.mktiti.cirkus.runtime.common.Message
+import hu.mktiti.cirkus.runtime.common.MessageDto
 import hu.mktiti.kreator.annotation.Injectable
 import hu.mktiti.kreator.annotation.InjectableType
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
+import hu.mktiti.kreator.api.inject
+import java.io.*
 import java.util.*
 
 @InjectableType
@@ -17,8 +17,23 @@ interface MessageConverter {
 
 }
 
+class CustomLoaderObjectInputStream(
+        inputStream: InputStream,
+        private val classLoader: ClassLoader
+) : ObjectInputStream(inputStream) {
+
+    override fun resolveClass(streamClass: ObjectStreamClass): Class<*> = try {
+        Class.forName(streamClass.name, false, classLoader)
+    } catch (_: ClassNotFoundException) {
+        super.resolveClass(streamClass)
+    }
+
+}
+
 @Injectable(tags = ["serialize"], default = true)
-class SerializationMessageConverter : MessageConverter {
+class SerializationMessageConverter(
+        private val binaryClassLoader: BinaryClassLoader = inject()
+) : MessageConverter {
 
     override fun toDto(message: Message): MessageDto {
         val data = message.data?.let { data ->
@@ -36,7 +51,7 @@ class SerializationMessageConverter : MessageConverter {
     override fun fromDto(message: MessageDto): Message {
         val data = message.dataMessage?.let { data ->
             val bytes = Base64.getDecoder().decode(data)
-            ObjectInputStream(ByteArrayInputStream(bytes)).use {
+            CustomLoaderObjectInputStream(ByteArrayInputStream(bytes), binaryClassLoader).use {
                 it.readObject()
             }
         }

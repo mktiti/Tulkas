@@ -2,6 +2,7 @@ package hu.mktiti.cirkus.runtime.bot
 
 import hu.mktiti.cirkus.api.BotInterface
 import hu.mktiti.cirkus.api.BotLoggerFactory
+import hu.mktiti.cirkus.runtime.base.BinaryClassLoader
 import hu.mktiti.cirkus.runtime.base.Client
 import hu.mktiti.cirkus.runtime.base.ClientRuntime
 import hu.mktiti.cirkus.runtime.base.RuntimeClientHelper
@@ -14,14 +15,23 @@ import hu.mktiti.kreator.api.inject
 @Injectable
 class BotClient(
         private val clientHelper: RuntimeClientHelper = inject(),
-        private val botClientHelper: BotClientHelper = inject()
+        private val botClientHelper: BotClientHelper = inject(),
+        private val binaryClassLoader: BinaryClassLoader = inject()
 ) : Client {
 
     override fun runClient(inQueue: InQueue, outQueue: OutQueue) {
-        val messageHandler: MessageHandler = DefaultMessageHandler(inQueue, outQueue)
 
-        messageHandler.sendActorBinaryRequest()
+        val messageHandler: MessageHandler = DefaultMessageHandler(inQueue, outQueue)
         BotLoggerFactory.setDefaultLogger(MessageHandlerBotLogger(messageHandler))
+
+        val actorBinary = messageHandler.loadActorBinary()
+        if (actorBinary == null) {
+            println("Actor binary is null")
+            println("Shutting down")
+            return
+        }
+
+        binaryClassLoader.loadFromBinary(actorBinary)
 
         try {
             val botInterface: Class<out BotInterface> = clientHelper.searchForBotInterface() ?: return

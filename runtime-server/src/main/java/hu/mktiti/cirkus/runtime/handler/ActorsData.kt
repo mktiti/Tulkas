@@ -17,7 +17,13 @@ class ActorsData<out T>(
     fun <R> map(mapper: (T) -> R): ActorsData<R>
            = ActorsData(mapper(engine), mapper(botA), mapper(botB))
 
-    fun <R, ER : R, BR : R> map(engineMapper: (T) -> ER, botMapper: (T) -> BR): ActorsData<R>
+    fun <R> map(
+            engineMapper: (T) -> R,
+            botAMapper: (T) -> R,
+            botBMapper: (T) -> R): ActorsData<R>
+            = ActorsData(engineMapper(engine), botAMapper(botA), botBMapper(botB))
+
+    fun <R> map(engineMapper: (T) -> R, botMapper: (T) -> R): ActorsData<R>
             = ActorsData(engineMapper(engine), botMapper(botA), botMapper(botB))
 
     fun <R> unify(mapper: (T, T, T) -> R) = mapper(engine, botA, botB)

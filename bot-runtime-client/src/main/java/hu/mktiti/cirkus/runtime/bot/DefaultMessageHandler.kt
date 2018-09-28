@@ -1,5 +1,6 @@
 package hu.mktiti.cirkus.runtime.bot
 
+import hu.mktiti.cirkus.runtime.base.MessageConverter
 import hu.mktiti.cirkus.runtime.common.*
 import hu.mktiti.kreator.api.inject
 import java.util.*
@@ -14,7 +15,24 @@ class DefaultMessageHandler(
         outQueue.addMessage(messageConverter.toDto(message))
     }
 
-    override fun sendActorBinaryRequest() = sendMessage(Message(ActorJar))
+    override fun loadActorBinary(): ByteArray? {
+        sendMessage(Message(ActorJar))
+        return with(inQueue.getMessage()) {
+            when {
+                header !is ActorJar -> {
+                    log("Actor Jar Expected, received ${header::class.simpleName}")
+                    sendMessage(Message(ErrorResult("Actor Jar Expected, received ${header::class.simpleName}")))
+                    null
+                }
+                dataMessage == null -> {
+                    log("Actor Jar contained no data part")
+                    sendMessage(Message(ErrorResult("Actor Jar contained no data part")))
+                    null
+                }
+                else -> Base64.getDecoder().decode(dataMessage)
+            }
+        }
+    }
 
     override fun sendResponse(method: String, data: Any?) = sendMessage(Message(CallResult(method), data))
 

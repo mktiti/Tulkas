@@ -34,7 +34,7 @@ class Sender(
     override fun run() {
         while (true) {
             val message = outQueue.getMessage()
-            println("Out message: ${message.header}")
+            //println("Out message: ${message.header}")
 
             if (!channel.sendMessage(message)) {
                 return
