@@ -20,39 +20,30 @@ import kotlin.concurrent.thread
 fun createSocket(port: Int): Socket = ServerSocket(port).accept()
 
 fun main(args: Array<String>) {
-    val enginePort = 12345
-    val botAPort   = 12346
-    val botBPort   = 12347
+    val ports = ActorsData(12345, 12346, 12347)
 
     val controlQueue = ControlQueue()
 
-    val engineLogQueue = LogQueue()
-    val botALogQueue   = LogQueue()
-    val botBLogQueue   = LogQueue()
+    val logQueues = ActorsData(::LogQueue)
 
-    val executorService    = Executors.newFixedThreadPool(3)
-    val engineSocketFuture = executorService.submit(Callable { createSocket(enginePort) })
-    val botASocketFuture   = executorService.submit(Callable { createSocket(botAPort) })
-    val botBSocketFuture   = executorService.submit(Callable { createSocket(botBPort) })
+    val executorService = Executors.newFixedThreadPool(3)
+    val socketFutures = ports.map { port ->
+        executorService.submit(Callable { createSocket(port) })
+    }
 
-    println("Starting clients! Ports: engine=$enginePort, botA=$botAPort, botB=$botBPort")
+    println("Starting clients! Ports: $ports")
 
-    val engineProcess = startEngine(enginePort)
-    val botAProcess   = startBot(botAPort)
-    val botBProcess   = startBot(botBPort)
+    val processes = ports.map(::startEngine, ::startBot)
+    val channels  = socketFutures.map { SocketChannel(it.get()) }
 
-    val engineChannel = SocketChannel(engineSocketFuture.get())
-    val botAChannel   = SocketChannel(botASocketFuture.get())
-    val botBChannel   = SocketChannel(botBSocketFuture.get())
+    val engineHandler: EngineMessageHandler = DefaultEngineMessageHandler(channels.engine)
+    val botAHandler: BotMessageHandler      = DefaultBotMessageHandler(channels.botA)
+    val botBHandler: BotMessageHandler      = DefaultBotMessageHandler(channels.botB)
 
-    val engineHandler: EngineMessageHandler = DefaultEngineMessageHandler(engineChannel)
-    val botAHandler: BotMessageHandler      = DefaultBotMessageHandler(botAChannel)
-    val botBHandler: BotMessageHandler      = DefaultBotMessageHandler(botBChannel)
-
-    val engineLogRouter: LogRouter = EngineLogRouter(engineLogQueue, botALogQueue, botBLogQueue)
+    val engineLogRouter: LogRouter = EngineLogRouter(logQueues)
     val engineReceiver = MessageRouterReceiver(engineHandler, Actor.ENGINE, engineLogRouter, controlQueue)
-    val botAReceiver   = MessageRouterReceiver(botAHandler, Actor.BOT_A, botLogRouter(botALogQueue), controlQueue)
-    val botBReceiver   = MessageRouterReceiver(botBHandler, Actor.BOT_B, botLogRouter(botBLogQueue), controlQueue)
+    val botAReceiver   = MessageRouterReceiver(botAHandler, Actor.BOT_A, botLogRouter(logQueues.botA), controlQueue)
+    val botBReceiver   = MessageRouterReceiver(botBHandler, Actor.BOT_B, botLogRouter(logQueues.botB), controlQueue)
 
     val controlHandler = ControlHandler(engineHandler, botAHandler, botBHandler, controlQueue)
 
@@ -62,9 +53,7 @@ fun main(args: Array<String>) {
 
     thread(name = "Control handler", start = true) { controlHandler.run() }.join()
 
-    engineProcess.destroyForcibly()
-    botAProcess.destroyForcibly()
-    botBProcess.destroyForcibly()
+    processes.map(Process::destroyForcibly)
 
     System.exit(0)
 

@@ -3,6 +3,7 @@ package hu.mktiti.cirkus.runtime.handler.log
 import hu.mktiti.cirkus.api.LogTarget
 import hu.mktiti.cirkus.api.LogTarget.*
 import hu.mktiti.cirkus.runtime.common.LogEntry
+import hu.mktiti.cirkus.runtime.handler.ActorsData
 
 private data class LogMappingEntry(val selector: List<LogTarget>, val queue: LogQueue, val sender: LogSender)
 
@@ -11,6 +12,8 @@ class EngineLogRouter(
         botAQueue: LogQueue,
         botBQueue: LogQueue
 ) : LogRouter {
+
+    constructor(data: ActorsData<LogQueue>) : this(data.engine, data.botA, data.botB)
 
     private companion object {
         private val engineSelectors = listOf(SELF, ALL)

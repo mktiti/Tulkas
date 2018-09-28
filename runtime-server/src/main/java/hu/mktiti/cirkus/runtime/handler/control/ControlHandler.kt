@@ -1,6 +1,7 @@
 package hu.mktiti.cirkus.runtime.handler.control
 
 import hu.mktiti.cirkus.runtime.common.CallTarget
+import hu.mktiti.cirkus.runtime.handler.ActorsData
 import hu.mktiti.cirkus.runtime.handler.message.BotMessageHandler
 import hu.mktiti.cirkus.runtime.handler.message.EngineMessageHandler
 
