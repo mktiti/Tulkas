@@ -1,7 +1,6 @@
 package hu.mktiti.cirkus.runtime.handler.message
 
 import hu.mktiti.cirkus.runtime.common.*
-import hu.mktiti.cirkus.runtime.common.util.forever
 import hu.mktiti.cirkus.runtime.handler.control.*
 import hu.mktiti.cirkus.runtime.handler.log.LogRouter
 

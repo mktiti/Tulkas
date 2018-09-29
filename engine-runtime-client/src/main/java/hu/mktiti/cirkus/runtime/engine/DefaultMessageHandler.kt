@@ -14,6 +14,8 @@ class DefaultMessageHandler(
         private val messageConverter: MessageConverter = inject()
 ) : MessageHandler {
 
+    private val log by logger()
+
     private fun sendMessage(message: Message) {
         outQueue.addMessage(messageConverter.toDto(message))
     }
@@ -23,12 +25,12 @@ class DefaultMessageHandler(
         return with(inQueue.getMessage()) {
             when {
                 header !is ActorJar -> {
-                    log(LogTarget.SELF, "Actor Jar Expected, received ${header::class.simpleName}")
+                    log.error("Actor Jar Expected, received {}", header::class.simpleName)
                     sendMessage(Message(ErrorResult("Actor Jar Expected, received ${header::class.simpleName}")))
                     null
                 }
                 dataMessage == null -> {
-                    log(LogTarget.SELF, "Actor Jar contained no data part")
+                    log.error("Actor Jar contained no data part")
                     sendMessage(Message(ErrorResult("Actor Jar contained no data part")))
                     null
                 }

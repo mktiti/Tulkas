@@ -3,8 +3,6 @@ package hu.mktiti.cirkus.runtime.common.serialization
 import hu.mktiti.cirkus.api.GameResult
 import hu.mktiti.cirkus.api.LogTarget
 import hu.mktiti.cirkus.runtime.common.*
-import hu.mktiti.cirkus.runtime.common.util.liftNulls
-import hu.mktiti.cirkus.runtime.common.util.safeValueOf
 import hu.mktiti.kreator.annotation.Injectable
 import hu.mktiti.kreator.annotation.InjectableType
 import hu.mktiti.kreator.property.intProperty
@@ -75,15 +73,21 @@ private fun Reader.readBinaryParam(sizeLimit: Int = intProperty("BINARY_PARAM_LI
         throw MessageException("Illegal size param")
     }
 
-    if (sizeParam == 0) {
-        return null
+    val param: String? = if (sizeParam == 0) {
+        null
+    } else {
+        val inArray = CharArray(sizeParam)
+        if (read(inArray) == sizeParam) {
+            String(inArray)
+        } else {
+            null
+        }
     }
 
-    val inArray = CharArray(sizeParam)
-    return if (read(inArray) == sizeParam) {
-        String(inArray)
+    return if (read() != '\n'.toInt()) {
+        throw MessageException("Message not terminated by newline ('\\n')")
     } else {
-        null
+        param
     }
 }
 
@@ -99,6 +103,8 @@ class HeaderTypeData(val name: String, val paramCount: Int, val creator: (List<S
 
 @Injectable(tags = ["safe"])
 class SafeMessageDeserializer : MessageDeserializer {
+
+    private val log by logger()
 
     private val headerData = listOf(
             HeaderTypeData("LogEntry", 2) { params ->
@@ -154,7 +160,8 @@ class SafeMessageDeserializer : MessageDeserializer {
         } catch (_: IndexOutOfBoundsException) {
             throw MessageException("Header parameter missing for $headerType")
         }
-    } catch (_: IOException) {
+    } catch (ioe: IOException) {
+        log.error("IOException while parsing message", ioe)
         throw MessageException("IOException while trying to parse message")
     }
 

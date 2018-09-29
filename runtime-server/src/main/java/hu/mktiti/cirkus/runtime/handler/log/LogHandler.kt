@@ -1,5 +1,6 @@
 package hu.mktiti.cirkus.runtime.handler.log
 
+import hu.mktiti.cirkus.runtime.common.logger
 import hu.mktiti.kreator.api.inject
 
 class LogHandler(
@@ -7,10 +8,12 @@ class LogHandler(
         private val converter: LogConverter = inject()
 ) {
 
+    private val log by logger()
+
     fun printLogs() {
-        println("Logs:")
-        logQueue.getAll().map(converter::convert).forEach(::println)
-        println("End of logs")
+        log.info("Logs:")
+        logQueue.getAll().map(converter::convert).forEach(log::info)
+        log.info("End of logs")
     }
 
 }

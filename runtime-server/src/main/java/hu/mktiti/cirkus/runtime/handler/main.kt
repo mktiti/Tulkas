@@ -1,6 +1,7 @@
 package hu.mktiti.cirkus.runtime.handler
 
 import hu.mktiti.cirkus.runtime.common.SocketChannel
+import hu.mktiti.cirkus.runtime.handler.client.createLogDir
 import hu.mktiti.cirkus.runtime.handler.client.startBot
 import hu.mktiti.cirkus.runtime.handler.client.startEngine
 import hu.mktiti.cirkus.runtime.handler.control.Actor
@@ -27,6 +28,12 @@ fun loadJarBinary(path: String): ByteArray = Files.readAllBytes(Paths.get(path))
 fun main(args: Array<String>) {
     val ports = ActorsData(12345, 12346, 12347)
 
+    val names = ActorsData("engine", "botA", "botB")
+
+    val logPaths = with(createLogDir()) {
+        names.map { resolve("$it.log") }
+    }
+
     val jars = try {
         ActorsData(
                 property("ENGINE_JAR_PATH"),
@@ -48,7 +55,7 @@ fun main(args: Array<String>) {
 
     println("Starting clients! Ports: $ports")
 
-    val processes = ports.map(::startEngine, ::startBot)
+    val processes = ports.zipWith(logPaths, ::startEngine, ::startBot)
     val channels  = socketFutures.map { SocketChannel(it.get()) }
 
     val engineHandler: EngineMessageHandler = DefaultEngineMessageHandler(channels.engine)

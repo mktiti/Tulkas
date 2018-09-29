@@ -9,6 +9,7 @@ import hu.mktiti.cirkus.runtime.base.RuntimeClientHelper
 import hu.mktiti.cirkus.runtime.common.Call
 import hu.mktiti.cirkus.runtime.common.InQueue
 import hu.mktiti.cirkus.runtime.common.OutQueue
+import hu.mktiti.cirkus.runtime.common.logger
 import hu.mktiti.kreator.annotation.Injectable
 import hu.mktiti.kreator.api.inject
 
@@ -19,6 +20,8 @@ class BotClient(
         private val binaryClassLoader: BinaryClassLoader = inject()
 ) : Client {
 
+    private val log by logger()
+
     override fun runClient(inQueue: InQueue, outQueue: OutQueue) {
 
         val messageHandler: MessageHandler = DefaultMessageHandler(inQueue, outQueue)
@@ -26,8 +29,8 @@ class BotClient(
 
         val actorBinary = messageHandler.loadActorBinary()
         if (actorBinary == null) {
-            println("Actor binary is null")
-            println("Shutting down")
+            log.error("Actor binary is null")
+            log.error("Shutting down")
             return
         }
 
@@ -40,7 +43,7 @@ class BotClient(
 
             while (true) {
                 val call: Call = messageHandler.waitForCall() ?: break
-                println("Proxy call received: method=${call.method}, params=${call.params}")
+                log.info("Proxy call received: method={}, params={}", call.method, call.params)
                 val response = proxy.callMethod(call.method, call.params)
                 messageHandler.sendResponse(call.method, response)
             }

@@ -1,6 +1,7 @@
 package hu.mktiti.cirkus.runtime.handler.control
 
 import hu.mktiti.cirkus.runtime.common.CallTarget
+import hu.mktiti.cirkus.runtime.common.logger
 import hu.mktiti.cirkus.runtime.handler.ActorsData
 import hu.mktiti.cirkus.runtime.handler.message.BotMessageHandler
 import hu.mktiti.cirkus.runtime.handler.message.ClientMessageHandler
@@ -14,6 +15,8 @@ class ControlHandler(
         private val jars: ActorsData<ByteArray>
 ) : Runnable {
 
+    private val log by logger()
+
     private var controlState: ControlState = ConnectionAwait()
 
     override fun run() {
@@ -21,7 +24,7 @@ class ControlHandler(
             while (!controlState.final) {
                 val controlMessage = controlQueue.getMessage()
                 routeMessage(controlMessage)
-                println("Control stat: $controlState")
+                log.info("Control state: {}", controlState)
             }
         } catch (ise: IllegalStateException) {
             println("Illegal state exception in control state $controlState")
@@ -31,7 +34,7 @@ class ControlHandler(
 
         controlState.let {
             if (it is Crash) {
-                println("Game crashed: ${it.message}")
+                log.error("Game crashed: {}", it.message)
             }
         }
     }

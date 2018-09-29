@@ -31,6 +31,8 @@ class SocketChannel(
         private val messageDeserializer: MessageDeserializer = inject()
 ) : Channel {
 
+    private val log by logger()
+
     private val outputWriter: PrintWriter = PrintWriter(OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8))
     private val bufferedReader = BufferedReader(InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8))
 
@@ -38,7 +40,9 @@ class SocketChannel(
     override fun sendMessage(message: MessageDto): Boolean = try {
         val messageString = messageSerializer.serializeMessageDto(message)
 
-        outputWriter.print(messageString)
+        log.info("Sending message: {}", messageString)
+
+        outputWriter.println(messageString)
         outputWriter.flush()
         true
     } catch (_: IOException) {
@@ -49,7 +53,8 @@ class SocketChannel(
 
     override fun waitForMessage(): MessageDto? = try {
         messageDeserializer.readMessageDto(bufferedReader)
-    } catch (_: MessageException) {
+    } catch (me: MessageException) {
+        log.error("Error while reading message", me)
         null
     }
 

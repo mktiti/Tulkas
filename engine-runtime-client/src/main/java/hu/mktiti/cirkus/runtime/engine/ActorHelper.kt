@@ -2,7 +2,6 @@ package hu.mktiti.cirkus.runtime.engine
 
 import hu.mktiti.cirkus.api.BotInterface
 import hu.mktiti.cirkus.api.GameEngine
-import hu.mktiti.cirkus.runtime.base.BinaryClassLoader
 import hu.mktiti.cirkus.runtime.base.RuntimeClientHelper
 import hu.mktiti.cirkus.runtime.common.CallTarget
 import hu.mktiti.kreator.annotation.Injectable
@@ -25,8 +24,7 @@ interface ActorHelper {
 @Injectable
 class DefaultActorHelper(
         private val clientHelper: RuntimeClientHelper = inject(),
-        private val engineHelper: EngineClientHelper = inject(),
-        private val binaryClassLoader: BinaryClassLoader = inject()
+        private val engineHelper: EngineClientHelper = inject()
 ) : ActorHelper {
 
     private fun proxy(botInterface: Class<out BotInterface>, messageHandler: MessageHandler, target: CallTarget) =
@@ -35,8 +33,6 @@ class DefaultActorHelper(
             }
 
     override fun createActors(messageHandler: MessageHandler): Actors<*>? {
-
-        val allClasses = binaryClassLoader.allClasses()
 
         return try {
             val botInterface: Class<out BotInterface> = clientHelper.searchForBotInterface() ?: return null

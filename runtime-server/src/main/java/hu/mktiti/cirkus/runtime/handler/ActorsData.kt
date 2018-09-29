@@ -28,6 +28,16 @@ class ActorsData<out T>(
 
     fun <R> unify(mapper: (T, T, T) -> R) = mapper(engine, botA, botB)
 
+    infix fun <O> zip(other: ActorsData<O>): ActorsData<Pair<T, O>> =
+        zipWith(other, ::Pair, ::Pair)
+
+    fun <O, R> zipWith(other: ActorsData<O>, engineMapper: (T, O) -> R, botMapper: (T, O) -> R): ActorsData<R> =
+        ActorsData(
+            engineMapper(engine, other.engine),
+            botMapper(botA, other.botA),
+            botMapper(botB, other.botB)
+        )
+
     operator fun get(actor: Actor): T = when (actor) {
         Actor.ENGINE -> engine
         Actor.BOT_A -> botA

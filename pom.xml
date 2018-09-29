@@ -21,7 +21,7 @@
         <kreator.annotation.version>0.1</kreator.annotation.version>
         <kreator.api.version>0.1.1</kreator.api.version>
         <kreator.core.version>0.1.1</kreator.core.version>
-        <kreator.property.version>0.1.1</kreator.property.version>
+        <kreator.property.version>0.1.2</kreator.property.version>
     </properties>
 
     <modules>
