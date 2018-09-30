@@ -156,7 +156,7 @@ class SafeMessageDeserializer : MessageDeserializer {
                 ?: throw MessageException("Invalid message header type")
 
         val headerData = headerData.find { it.name == headerType }
-                ?: throw MessageException("No data about header type, this should not happen")
+                ?: throw MessageException("No actordata about header type, this should not happen")
 
         val params: List<String> = (0 until headerData.paramCount)
                 .map { reader.readParameter() }

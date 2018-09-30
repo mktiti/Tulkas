@@ -8,6 +8,11 @@ enum class Actor(val callTarget: CallTarget?) {
     ENGINE(null), BOT_A(CallTarget.BOT_A), BOT_B(CallTarget.BOT_B)
 }
 
+fun callTargetToActor(target: CallTarget): Actor = when (target) {
+    CallTarget.BOT_A -> Actor.BOT_A
+    CallTarget.BOT_B -> Actor.BOT_B
+}
+
 sealed class ControlMessage(val actor: Actor)
 
 class ActorBinaryRequest(actor: Actor) : ControlMessage(actor)

@@ -1,23 +1,20 @@
 package hu.mktiti.cirkus.runtime.handler.control
 
-import hu.mktiti.cirkus.runtime.common.CallTarget
 import hu.mktiti.cirkus.runtime.common.logger
-import hu.mktiti.cirkus.runtime.handler.ActorsData
-import hu.mktiti.cirkus.runtime.handler.message.BotMessageHandler
-import hu.mktiti.cirkus.runtime.handler.message.ClientMessageHandler
-import hu.mktiti.cirkus.runtime.handler.message.EngineMessageHandler
+import hu.mktiti.cirkus.runtime.handler.actordata.ActorArityException
+import hu.mktiti.cirkus.runtime.handler.actordata.ActorsData
+import hu.mktiti.cirkus.runtime.handler.actordata.unified
 
 class ControlHandler(
-        private val engineHandler: EngineMessageHandler,
-        private val botAHandler: BotMessageHandler,
-        private val botBHandler: BotMessageHandler,
-        private val controlQueue: ControlQueue,
-        private val jars: ActorsData<ByteArray>
+        private val handlers: ActorsData<EngineControlHandle, BotControlHandle>,
+        private val controlQueue: ControlQueue
 ) : Runnable {
 
     private val log by logger()
 
-    private var controlState: ControlState = ConnectionAwait()
+    private val unifiedHandlers = handlers.unified()
+
+    private var controlState: ControlState = ConnectionAwait(handlers.actors)
 
     override fun run() {
         try {
@@ -27,7 +24,9 @@ class ControlHandler(
                 log.info("Control state: {}", controlState)
             }
         } catch (ise: IllegalStateException) {
-            println("Illegal state exception in control state $controlState")
+            log.error("Illegal state exception in control state {}", controlState)
+        } catch (aae: ActorArityException) {
+            log.error("Actor arity mixup occured", aae)
         }
 
         sendGameOverToAll()
@@ -56,11 +55,7 @@ class ControlHandler(
         }
     }
 
-    private fun handler(actor: Actor): ClientMessageHandler = when (actor) {
-        Actor.ENGINE -> engineHandler
-        Actor.BOT_A -> botAHandler
-        Actor.BOT_B -> botBHandler
-    }
+    private fun handle(actor: Actor): ControlClientHandle = unifiedHandlers[actor]
 
     private fun actorBinaryRequest(request: ActorBinaryRequest) = atState { state ->
         if (state !is ConnectionAwait || !state.connect(request.actor)) {
@@ -68,12 +63,14 @@ class ControlHandler(
 
         } else {
             request.actor.let {
-                handler(it).sendActorBinary(jars[it])
+                handle(it).apply {
+                    messageHandler.sendActorBinary(binary)
+                }
             }
 
             if (state.allConnected) {
                 controlState = crashable(WaitingForEngine) {
-                    engineHandler.sendMatchStartNotice()
+                    handlers.engine.messageHandler.sendMatchStartNotice()
                 }
             }
         }
@@ -85,10 +82,10 @@ class ControlHandler(
         } else if (proxyCallMessage.actor != Actor.ENGINE) {
            Crash("Only engine can proxy call!")
         } else {
-            val targetHandler = if (proxyCallMessage.proxyCall.target == CallTarget.BOT_A) botAHandler else botBHandler
+            val targetHandler = handlers.getBot(callTargetToActor(proxyCallMessage.proxyCall.target))
 
             crashable(WaitingForBot(proxyCallMessage.proxyCall.target)) {
-                targetHandler.proxyCall(proxyCallMessage.proxyCall, proxyCallMessage.callData)
+                targetHandler.messageHandler.proxyCall(proxyCallMessage.proxyCall, proxyCallMessage.callData)
             }
         }
     }
@@ -98,7 +95,7 @@ class ControlHandler(
             Crash("Not waiting for ${callResultMessage.actor}!")
         } else {
             crashable(WaitingForEngine) {
-                engineHandler.sendCallResult(callResultMessage.result, callResultMessage.responseData)
+                handlers.engine.messageHandler.sendCallResult(callResultMessage.result, callResultMessage.responseData)
             }
         }
     }
@@ -116,8 +113,8 @@ class ControlHandler(
     }
 
     private fun sendGameOverToAll() {
-        listOf(engineHandler, botAHandler, botBHandler).forEach {
-            it.sendGameOverNotice()
+        unifiedHandlers.actorData.forEach {
+            it.messageHandler.sendGameOverNotice()
         }
     }
 

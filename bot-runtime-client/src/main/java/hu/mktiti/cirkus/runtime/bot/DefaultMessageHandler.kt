@@ -27,8 +27,8 @@ class DefaultMessageHandler(
                     null
                 }
                 dataMessage == null -> {
-                    log.error("Actor Jar contained no data part")
-                    sendMessage(Message(ErrorResult("Actor Jar contained no data part")))
+                    log.error("Actor Jar contained no actordata part")
+                    sendMessage(Message(ErrorResult("Actor Jar contained no actordata part")))
                     null
                 }
                 else -> Base64.getDecoder().decode(dataMessage)
@@ -50,7 +50,7 @@ class DefaultMessageHandler(
     override fun waitForBot(): ByteArray? {
         val message = messageConverter.fromDto(inQueue.getMessage())
         if (message.header !is ActorJar) throw BotException("Bot jar expected")
-        val base64String = message.data as? String ?: throw BotException("Base 64 binary data expected")
+        val base64String = message.data as? String ?: throw BotException("Base 64 binary actordata expected")
         return Base64.getDecoder().decode(base64String)
     }
 

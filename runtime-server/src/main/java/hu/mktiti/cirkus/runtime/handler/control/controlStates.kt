@@ -5,14 +5,16 @@ import hu.mktiti.cirkus.runtime.common.CallTarget
 
 sealed class ControlState(val final: Boolean)
 
-data class ConnectionAwait(
-        private val connectedActors: MutableSet<Actor> = mutableSetOf()
+class ConnectionAwait(
+        waitingFor: Set<Actor>
 ) : ControlState(false) {
 
-    val allConnected
-        get() = connectedActors.size == 3
+    private val waitingFor = HashSet(waitingFor)
 
-    fun connect(actor: Actor): Boolean = connectedActors.add(actor)
+    val allConnected
+        get() = waitingFor.isEmpty()
+
+    fun connect(actor: Actor): Boolean = waitingFor.remove(actor)
 }
 
 object WaitingForEngine : ControlState(false) {

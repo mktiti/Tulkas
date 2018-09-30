@@ -30,8 +30,8 @@ class DefaultMessageHandler(
                     null
                 }
                 dataMessage == null -> {
-                    log.error("Actor Jar contained no data part")
-                    sendMessage(Message(ErrorResult("Actor Jar contained no data part")))
+                    log.error("Actor Jar contained no actordata part")
+                    sendMessage(Message(ErrorResult("Actor Jar contained no actordata part")))
                     null
                 }
                 else -> Base64.getDecoder().decode(dataMessage)
