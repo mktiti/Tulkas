@@ -13,6 +13,10 @@ private const val HOST = "localhost"
 
 fun createLogDir(logDirBase: String = property("LOG_DIR_BASE")): Path {
     val basePath = Paths.get(logDirBase)
+    if (!Files.exists(basePath)) {
+        Files.createDirectory(basePath)
+    }
+
     if (!Files.isWritable(basePath)) {
         throw RuntimeException("Cannot create log dir, cannot access base dir '$logDirBase'")
     }

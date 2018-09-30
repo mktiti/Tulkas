@@ -9,7 +9,6 @@ import hu.mktiti.cirkus.runtime.handler.control.ControlHandler
 import hu.mktiti.cirkus.runtime.handler.control.ControlQueue
 import hu.mktiti.cirkus.runtime.handler.log.EngineLogRouter
 import hu.mktiti.cirkus.runtime.handler.log.LogQueue
-import hu.mktiti.cirkus.runtime.handler.log.LogRouter
 import hu.mktiti.cirkus.runtime.handler.log.botLogRouter
 import hu.mktiti.cirkus.runtime.handler.message.*
 import hu.mktiti.kreator.property.property
@@ -27,7 +26,6 @@ fun loadJarBinary(path: String): ByteArray = Files.readAllBytes(Paths.get(path))
 
 fun main(args: Array<String>) {
     val ports = ActorsData(12345, 12346, 12347)
-
     val names = ActorsData("engine", "botA", "botB")
 
     val logPaths = with(createLogDir()) {
@@ -62,8 +60,7 @@ fun main(args: Array<String>) {
     val botAHandler: BotMessageHandler      = DefaultBotMessageHandler(channels.botA)
     val botBHandler: BotMessageHandler      = DefaultBotMessageHandler(channels.botB)
 
-    val engineLogRouter: LogRouter = EngineLogRouter(logQueues)
-    val engineReceiver = MessageRouterReceiver(engineHandler, Actor.ENGINE, engineLogRouter, controlQueue)
+    val engineReceiver = MessageRouterReceiver(engineHandler, Actor.ENGINE, EngineLogRouter(logQueues), controlQueue)
     val botAReceiver   = MessageRouterReceiver(botAHandler, Actor.BOT_A, botLogRouter(logQueues.botA), controlQueue)
     val botBReceiver   = MessageRouterReceiver(botBHandler, Actor.BOT_B, botLogRouter(logQueues.botB), controlQueue)
 

@@ -54,7 +54,7 @@ class SocketChannel(
     override fun waitForMessage(): MessageDto? = try {
         messageDeserializer.readMessageDto(bufferedReader)
     } catch (me: MessageException) {
-        log.error("Error while reading message", me)
+        log.info("Error while reading message", me)
         null
     }
 
