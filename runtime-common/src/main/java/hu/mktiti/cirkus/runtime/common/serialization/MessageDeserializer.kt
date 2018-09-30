@@ -10,6 +10,7 @@ import java.io.IOException
 import java.io.Reader
 import java.nio.charset.StandardCharsets
 import java.util.*
+import kotlin.collections.ArrayList
 
 private fun Reader.readParameter(maxParamSize: Int = intProperty("HEADER_PARAM_LIMIT", 1000)): String? {
     val readChars = LinkedList<Char>()
@@ -77,15 +78,23 @@ private fun Reader.readBinaryParam(sizeLimit: Int = intProperty("BINARY_PARAM_LI
         null
     } else {
         val inArray = CharArray(sizeParam)
-        if (read(inArray) == sizeParam) {
-            String(inArray)
-        } else {
-            null
+        var readPos = 0
+
+        while (readPos != sizeParam) {
+            val readCount = read(inArray, readPos, sizeParam - readPos)
+            if (readCount == -1) {
+                throw MessageException("Channel closed while reading message binary parameter")
+            }
+
+            readPos += readCount
         }
+
+        String(inArray)
     }
 
-    return if (read() != '\n'.toInt()) {
-        throw MessageException("Message not terminated by newline ('\\n')")
+    val next = read()
+    return if (next != '\n'.toInt()) {
+        throw MessageException("Message not terminated by newline ('\\n'), got '$next' (char '${next.toChar()}')")
     } else {
         param
     }
@@ -143,7 +152,8 @@ class SafeMessageDeserializer : MessageDeserializer {
             throw MessageException("Invalid message format (should start with $MESSAGE_HEADER)")
         }
 
-        val headerType = reader.readPartOneOf(headerNames) ?: throw MessageException("Invalid message header type")
+        val headerType = reader.readPartOneOf(headerNames)
+                ?: throw MessageException("Invalid message header type")
 
         val headerData = headerData.find { it.name == headerType }
                 ?: throw MessageException("No data about header type, this should not happen")
@@ -164,5 +174,4 @@ class SafeMessageDeserializer : MessageDeserializer {
         log.error("IOException while parsing message", ioe)
         throw MessageException("IOException while trying to parse message")
     }
-
 }
