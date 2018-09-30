@@ -27,7 +27,7 @@ if [ ! -f ${JAR} ]; then
 fi
 
 # set environment variables
-export KREATOR_PROS_PREFIX=CIRKUS_
+export KREATOR_PROPS_PREFIX=CIRKUS_
 export CIRKUS_SOCKET_HOST=${HOST}
 export CIRKUS_SOCKET_PORT=${PORT}
 export CIRKUS_THREAD_PREFIX=Bot
