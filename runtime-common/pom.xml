@@ -5,19 +5,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>hu.mktiti.cirkus</groupId>
-        <artifactId>Cirkus</artifactId>
+        <groupId>hu.mktiti.tulkas</groupId>
+        <artifactId>Tulkas</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>runtime-common</artifactId>
-    <version>${cirkus.runtime.version}</version>
+    <version>${tulkas.runtime.version}</version>
 
     <dependencies>
         <dependency>
-            <groupId>hu.mktiti.cirkus</groupId>
+            <groupId>hu.mktiti.tulkas</groupId>
             <artifactId>engine-runtime-api</artifactId>
-            <version>${cirkus.game-api.version}</version>
+            <version>${tulkas.game-api.version}</version>
         </dependency>
 
         <dependency>

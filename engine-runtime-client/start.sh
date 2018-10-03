@@ -1,7 +1,7 @@
 #!/bin/bash
 
 JAR=target/engine-runtime-client-jar-with-dependencies.jar
-PACKAGE=hu.mktiti.cirkus.runtime.base.ClientRuntimeKt
+PACKAGE=hu.mktiti.tulkas.runtime.base.ClientRuntimeKt
 
 HOST_IN="$1"
 PORT_IN="$2"
@@ -27,11 +27,12 @@ if [ ! -f ${JAR} ]; then
 fi
 
 # set environment variables
-export KREATOR_PROPS_PREFIX=CIRKUS_
-export CIRKUS_SOCKET_HOST=${HOST}
-export CIRKUS_SOCKET_PORT=${PORT}
-export CIRKUS_THREAD_PREFIX=Engine
-export CIRKUS_LOG_PATH=${LOG_PATH}
+export KREATOR_PROPS_SOURCE=env-var
+export KREATOR_PROPS_PREFIX=TULKAS_
+export TULKAS_SOCKET_HOST=${HOST}
+export TULKAS_SOCKET_PORT=${PORT}
+export TULKAS_THREAD_PREFIX=Engine
+export TULKAS_LOG_PATH=${LOG_PATH}
 
 echo "Starting client"
 java -Dlogback.configurationFile=logback.xml -cp ${JAR} ${PACKAGE}
