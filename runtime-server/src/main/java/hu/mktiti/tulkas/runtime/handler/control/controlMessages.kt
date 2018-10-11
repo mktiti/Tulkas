@@ -1,5 +1,7 @@
 package hu.mktiti.tulkas.runtime.handler.control
 
+import hu.mktiti.tulkas.api.challenge.ChallengeResult
+import hu.mktiti.tulkas.api.match.MatchResult
 import hu.mktiti.tulkas.runtime.common.CallResult
 import hu.mktiti.tulkas.runtime.common.CallTarget
 import hu.mktiti.tulkas.runtime.common.ProxyCall
@@ -21,6 +23,10 @@ class ProxyCallMessage(actor: Actor, val proxyCall: ProxyCall, val callData: Str
 
 class CallResultMessage(actor: Actor, val result: CallResult, val responseData: String?) : ControlMessage(actor)
 
-class GameResultMessage(actor: Actor, val gameResultData: String?) : ControlMessage(actor)
+class ChallengeResultMessage(actor: Actor, val result: ChallengeResult) : ControlMessage(actor)
+
+class MatchResultMessage(actor: Actor, val result: MatchResult) : ControlMessage(actor)
+
+class BotTimeoutMessage(actor: Actor) : ControlMessage(actor)
 
 class ErrorResultMessage(actor: Actor, val errorData: String?) : ControlMessage(actor)

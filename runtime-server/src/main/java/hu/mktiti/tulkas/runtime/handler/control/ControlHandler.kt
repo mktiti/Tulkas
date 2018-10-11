@@ -26,7 +26,7 @@ class ControlHandler(
         } catch (ise: IllegalStateException) {
             log.error("Illegal state exception in control state {}", controlState)
         } catch (aae: ActorArityException) {
-            log.error("Actor arity mixup occured", aae)
+            log.error("BotActor arity mixup occured", aae)
         }
 
         sendGameOverToAll()
@@ -50,8 +50,10 @@ class ControlHandler(
             is ActorBinaryRequest -> actorBinaryRequest(message)
             is ProxyCallMessage   -> proxyCall(message)
             is CallResultMessage  -> callResult(message)
-            is GameResultMessage  -> gameResult(message)
-            is ErrorResultMessage -> error(message)
+            is ChallengeResultMessage  -> challengeResult(message)
+            is MatchResultMessage  -> matchResult(message)
+            is BotTimeoutMessage   -> botTimeout(message)
+            is ErrorResultMessage  -> error(message)
         }
     }
 
@@ -100,11 +102,31 @@ class ControlHandler(
         }
     }
 
-    private fun gameResult(gameResultMessage: GameResultMessage) = modState { state ->
+    private fun challengeResult(challengeResultMessage: ChallengeResultMessage) = modState { state ->
         when {
-            state !is WaitingForEngine ->              Crash("Not waiting for engine!")
-            gameResultMessage.actor != Actor.ENGINE -> Crash("Only engine can proxy call!")
-            else -> MatchEnded()
+            state !is WaitingForEngine -> Crash("Not waiting for engine!")
+            handlers.isMatch -> Crash("Match must not return challenge result!")
+            challengeResultMessage.actor != Actor.ENGINE -> Crash("Only engine can proxy call!")
+            else -> MatchEnded(challengeResultMessage.result)
+        }
+    }
+
+    private fun matchResult(matchResultMessage: MatchResultMessage) = modState { state ->
+        when {
+            state !is WaitingForEngine -> Crash("Not waiting for engine!")
+            !handlers.isMatch -> Crash("Challenge must not return match result!")
+            matchResultMessage.actor != Actor.ENGINE -> Crash("Only engine can proxy call!")
+            else -> MatchEnded(matchResultMessage.result)
+        }
+    }
+
+    private fun botTimeout(timeoutMessage: BotTimeoutMessage) = modState { state ->
+        if (state !is WaitingForBot || state.bot != timeoutMessage.actor.callTarget) {
+            Crash("Not waiting for ${timeoutMessage.actor}!")
+        } else {
+            crashable(WaitingForEngine) {
+                handlers.engine.messageHandler.sendCallTimeout()
+            }
         }
     }
 

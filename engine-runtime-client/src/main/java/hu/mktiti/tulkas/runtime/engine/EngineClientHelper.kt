@@ -16,7 +16,7 @@ interface EngineClientHelper {
 
     fun <T : BotInterface> createProxyForBot(botClass: Class<T>, invokeLogic: (String, List<Any?>) -> Any?): T
 
-    fun <T : BotInterface> searchAndCreateEngine(botClass: Class<T>, botA: BotInterface, botB: BotInterface): GameEngine<*>?
+    fun <T : BotInterface> searchAndCreateEngine(botClass: Class<T>, bots: List<BotInterface>): GameEngine<*>?
 
 }
 
@@ -31,23 +31,22 @@ class DefaultEngineClientHelper(
         })
     }
 
-    override fun <T : BotInterface> searchAndCreateEngine(botClass: Class<T>, botA: BotInterface, botB: BotInterface): GameEngine<*>? {
+    override fun <T : BotInterface> searchAndCreateEngine(botClass: Class<T>, bots: List<BotInterface>): GameEngine<*>? {
 
         val candidateClasses: List<Class<*>> = binaryClassLoader.allClasses().filter { GameEngine::class.java.isAssignableFrom(it) }
         val constructors: List<Constructor<*>> =
                 candidateClasses
                         .filter { !Modifier.isAbstract(it.modifiers) && Modifier.isPublic(it.modifiers) }
                         .flatMap { it.constructors.toList() }
-                        .filter { it.parameterCount == 2 && it.parameterTypes.all { p ->  p.isAssignableFrom(botClass) } }
+                        .filter { it.parameterCount == bots.size && it.parameterTypes.all { p ->  p.isAssignableFrom(botClass) } }
 
         val instance = when (constructors.size) {
             0 -> null
-            1 -> constructors.first().newInstance(botA, botB)
+            1 -> constructors.first().newInstance(*bots.toTypedArray())
             else ->
                 throw BotDefinitionException("Multiple valid bot found for bot interface (public non-abstract class with no-arg public constructor)!")
         }
 
         return instance as? GameEngine<*>
     }
-
 }

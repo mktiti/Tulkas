@@ -1,31 +1,35 @@
 package hu.mktiti.tulkas.runtime.engine
 
-import hu.mktiti.kreator.annotation.Injectable
-import hu.mktiti.kreator.api.inject
-import hu.mktiti.tulkas.api.EngineLoggerFactory
-import hu.mktiti.tulkas.runtime.base.BinaryClassLoader
-import hu.mktiti.tulkas.runtime.base.Client
-import hu.mktiti.tulkas.runtime.base.ClientRuntime
+import hu.mktiti.kreator.property.boolProperty
+import hu.mktiti.tulkas.api.log.EngineLoggerFactory
+import hu.mktiti.tulkas.runtime.base.*
 import hu.mktiti.tulkas.runtime.common.InQueue
 import hu.mktiti.tulkas.runtime.common.OutQueue
+import hu.mktiti.tulkas.runtime.common.ProxyCallTimeoutException
 import hu.mktiti.tulkas.runtime.common.logger
 
-@Injectable
 class EngineClient(
-        private val actorHelper: ActorHelper = inject(),
-        private val binaryClassLoader: BinaryClassLoader = inject()
+        private val isMatch: Boolean = boolProperty("IS_MATCH")
 ) : Client {
 
     private val log by logger()
 
-    override fun runClient(inQueue: InQueue, outQueue: OutQueue) {
+    override fun runClient(
+            inQueue: InQueue,
+            outQueue: OutQueue,
+            messageConverter: MessageConverter,
+            binaryClassLoader: BinaryClassLoader,
+            clientHelper: RuntimeClientHelper
+    ) {
+        val engineClientHelper: EngineClientHelper = DefaultEngineClientHelper(binaryClassLoader)
+        val actorHelper: ActorHelper = DefaultActorHelper(clientHelper, engineClientHelper)
 
-        val messageHandler: MessageHandler = DefaultMessageHandler(inQueue, outQueue)
+        val messageHandler: EngineMessageHandler = DefaultEngineMessageHandler(inQueue, outQueue, messageConverter)
         EngineLoggerFactory.setDefaultLogger(MessageHandlerEngineLogger(messageHandler))
 
         val actorBinary = messageHandler.loadActorBinary()
         if (actorBinary == null) {
-            log.error("Actor binary is null")
+            log.error("BotActor binary is null")
             log.error("Shutting down")
             return
         }
@@ -34,8 +38,8 @@ class EngineClient(
 
         println("Channel created")
 
-        val (engine, _, _) = actorHelper.createActors(messageHandler)
-                ?: throw RuntimeException("Failed to create actors")
+        val engine = actorHelper.createActors(messageHandler, isMatch)
+            ?: throw RuntimeException("Failed to create actors")
 
         if (!messageHandler.waitForStart()) {
             log.error("Error - Was waiting for start notice, shutting down")
@@ -43,16 +47,20 @@ class EngineClient(
         }
 
         log.info("Starting game")
-        val result = engine.playGame()
-        log.info("Game done")
-        log.info("Did A win? {}", result.doAWins())
-        log.info("Did B win? {}", result.doBWins())
+        try {
+            val result = engine.playGame()
+            log.info("Game done")
+            messageHandler.sendResult(result)
 
-        messageHandler.sendResult(result)
+        } catch (te: ProxyCallTimeoutException) {
+            log.info("Unexpected bot timeout (not caught by game engine)", te)
+            messageHandler.log("Uncaught bot timeout occured, for automatic timeout handling use an abstract game engine base")
+            messageHandler.reportError(te)
+        }
     }
 
 }
 
 fun main(args: Array<String>) {
-    ClientRuntime().run()
+    ClientRuntime(EngineClient()).run()
 }

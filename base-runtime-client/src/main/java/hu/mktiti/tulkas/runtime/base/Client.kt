@@ -7,6 +7,12 @@ import hu.mktiti.tulkas.runtime.common.OutQueue
 @InjectableType
 interface Client {
 
-    fun runClient(inQueue: InQueue, outQueue: OutQueue)
+    fun runClient(
+            inQueue: InQueue,
+            outQueue: OutQueue,
+            messageConverter: MessageConverter,
+            binaryClassLoader: BinaryClassLoader,
+            clientHelper: RuntimeClientHelper
+    )
 
 }

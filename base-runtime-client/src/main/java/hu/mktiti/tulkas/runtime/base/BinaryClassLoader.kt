@@ -3,9 +3,15 @@ package hu.mktiti.tulkas.runtime.base
 import hu.mktiti.kreator.annotation.Injectable
 import hu.mktiti.kreator.annotation.InjectableArity
 import hu.mktiti.kreator.property.intProperty
+import hu.mktiti.kreator.property.propertyOpt
 import hu.mktiti.tulkas.runtime.common.logger
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.FilePermission
+import java.security.CodeSigner
+import java.security.CodeSource
+import java.security.Permissions
+import java.security.ProtectionDomain
 import java.util.jar.JarInputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -13,7 +19,8 @@ import java.util.zip.ZipInputStream
 @Injectable(arity = InjectableArity.SINGLETON)
 class BinaryClassLoader(
         private val maxFileSize: Int = intProperty("BINARY_ENTRY_SIZE_LIMIT", 10_485_760), // 10MB
-        private val bufferSize: Int = intProperty("BINARY_ENTRY_BUFFER_SIZE", 4096) // 4 KB
+        private val bufferSize: Int = intProperty("BINARY_ENTRY_BUFFER_SIZE", 4096), // 4 KB
+        private val readableFiles: List<String> = propertyOpt("READABLE_FILES")?.split(":") ?: emptyList()
 ) : ClassLoader() {
 
     private val log by logger()
@@ -21,6 +28,20 @@ class BinaryClassLoader(
     private val classExtension = ".class"
 
     private val classes = HashMap<String, Class<*>>()
+
+    private val protectionDomain: ProtectionDomain
+
+    init {
+        val codeSource = CodeSource(null, emptyArray<CodeSigner>())
+
+        val permissions = Permissions().apply {
+            readableFiles.forEach { file ->
+                add(FilePermission(file, "read"))
+            }
+        }
+
+        protectionDomain = ProtectionDomain(codeSource, permissions)
+    }
 
     fun loadFromBinary(binary: ByteArray) {
         val classes = HashMap<String, Class<*>>()
@@ -38,7 +59,7 @@ class BinaryClassLoader(
 
                         log.info("Binary Classloader - Defining class '{}'", name)
 
-                        classes[name] = defineClass(name, bytes, 0, bytes.size)
+                        classes[name] = defineClass(name, bytes, 0, bytes.size, protectionDomain)
                     }
                 }
             }

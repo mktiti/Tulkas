@@ -1,10 +1,20 @@
-package hu.mktiti.tulkas.api;
+package hu.mktiti.tulkas.api.match;
 
-import java.util.Optional;
+import hu.mktiti.tulkas.api.GameEngine;
+import hu.mktiti.tulkas.api.GameResult;
+import hu.mktiti.tulkas.api.exception.BotTimeoutException;
+import hu.mktiti.tulkas.api.exception.GameEngineException;
+import hu.mktiti.tulkas.api.log.EngineLoggerFactory;
+import hu.mktiti.tulkas.api.log.GameEngineLogger;
+import hu.mktiti.tulkas.api.log.LogTarget;
 
-import static hu.mktiti.tulkas.api.GameResult.*;
+import static hu.mktiti.tulkas.api.match.MatchResult.*;
 
 public abstract class DuelGameEngine<T> implements GameEngine<T> {
+
+    public enum TurnResult {
+        WIN, LOSE, DRAW, ERROR, CONTINUE
+    }
 
     protected final T botA;
     protected final T botB;
@@ -28,7 +38,7 @@ public abstract class DuelGameEngine<T> implements GameEngine<T> {
         return isA ? botA : botB;
     }
 
-    protected abstract Optional<GameResult> playTurn();
+    protected abstract TurnResult playTurn();
 
     private void nextTurn() {
         isCurrentlyBotA = !isCurrentlyBotA;
@@ -38,15 +48,27 @@ public abstract class DuelGameEngine<T> implements GameEngine<T> {
     public final GameResult playGame() {
         try {
             while (true) {
-                final Optional<GameResult> turnResult = playTurn();
-                if (turnResult.isPresent()) {
-                    return turnResult.get();
+                final TurnResult turnResult;
+                try {
+                    turnResult = playTurn();
+                } catch (final BotTimeoutException bte) {
+                    return error();
+                }
+
+                if (turnResult != null) {
+                    switch (turnResult) {
+                        case WIN:   return wins();
+                        case DRAW:  return draws();
+                        case LOSE:  return loses();
+                        case ERROR: return error();
+                        default: break;
+                    }
                 }
 
                 nextTurn();
             }
         } catch (final Exception e) {
-            return crash(Actor.ENGINE);
+            throw new GameEngineException("Exception while playing game: " + e.getMessage());
         }
     }
 
@@ -74,24 +96,28 @@ public abstract class DuelGameEngine<T> implements GameEngine<T> {
         }
     }
 
-    protected final GameResult wins() {
+    protected final MatchResult wins() {
         return win(currentBotActor());
     }
 
-    protected final GameResult loses() {
+    protected final MatchResult loses() {
         return win(botToActor(!isCurrentlyBotA()));
     }
 
-    protected final GameResult error() {
-        return GameResult.error(botToActor(!isCurrentlyBotA()));
+    protected final MatchResult draws() {
+        return draw();
     }
 
-    protected Actor currentBotActor() {
+    protected final MatchResult error() {
+        return MatchResult.error(botToActor(!isCurrentlyBotA()));
+    }
+
+    protected BotActor currentBotActor() {
         return botToActor(isCurrentlyBotA());
     }
 
-    protected Actor botToActor(final boolean isBotA) {
-        return isBotA ? Actor.BOT_A : Actor.BOT_B;
+    protected BotActor botToActor(final boolean isBotA) {
+        return isBotA ? BotActor.BOT_A : BotActor.BOT_B;
     }
 
     protected boolean isCurrentlyBotA() {

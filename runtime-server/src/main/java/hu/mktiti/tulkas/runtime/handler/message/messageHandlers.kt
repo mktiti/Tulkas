@@ -30,4 +30,6 @@ interface EngineMessageHandler : ClientMessageHandler {
 
     fun sendCallResult(callResult: CallResult, resultData: String?): Boolean
 
+    fun sendCallTimeout(): Boolean
+
 }

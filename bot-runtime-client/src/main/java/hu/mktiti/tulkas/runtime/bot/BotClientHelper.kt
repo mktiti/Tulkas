@@ -1,8 +1,6 @@
 package hu.mktiti.tulkas.runtime.bot
 
-import hu.mktiti.kreator.annotation.Injectable
 import hu.mktiti.kreator.annotation.InjectableType
-import hu.mktiti.kreator.api.inject
 import hu.mktiti.tulkas.api.BotInterface
 import hu.mktiti.tulkas.runtime.base.BinaryClassLoader
 import hu.mktiti.tulkas.runtime.common.BotDefinitionException
@@ -18,9 +16,8 @@ interface BotClientHelper {
 
 }
 
-@Injectable(default = true)
 class DefaultBotClientHelper(
-        private val binaryClassLoader: BinaryClassLoader = inject()
+        private val binaryClassLoader: BinaryClassLoader
 ) : BotClientHelper {
 
     override fun createProxyForBot(botInterface: Class<out BotInterface>, bot: BotInterface): BotProxy {

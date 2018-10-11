@@ -12,6 +12,8 @@ open class TwoPlayerData<out E, out B>(
 
     override val actors: Set<Actor> by lazy { setOf(Actor.ENGINE, Actor.BOT_A, Actor.BOT_B) }
 
+    override val isMatch = true
+
     constructor(engine: E, bot: B) : this(engine, bot, bot)
 
     constructor(engineInit: () -> E, botInit: () -> B) : this(engineInit(), botInit(), botInit())

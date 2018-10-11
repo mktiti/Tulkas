@@ -21,6 +21,12 @@
         </dependency>
 
         <dependency>
+            <groupId>hu.mktiti</groupId>
+            <artifactId>kreator-core</artifactId>
+            <version>${kreator.core.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test</artifactId>
             <version>${kotlin.version}</version>

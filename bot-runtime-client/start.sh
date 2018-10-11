@@ -1,7 +1,6 @@
 #!/bin/bash
 
 JAR=target/bot-runtime-client-jar-with-dependencies.jar
-PACKAGE=hu.mktiti.tulkas.runtime.base.ClientRuntimeKt
 
 HOST_IN="$1"
 PORT_IN="$2"
@@ -33,6 +32,7 @@ export TULKAS_SOCKET_HOST=${HOST}
 export TULKAS_SOCKET_PORT=${PORT}
 export TULKAS_THREAD_PREFIX=Bot
 export TULKAS_LOG_PATH=${LOG_PATH}
+export TULKAS_READABLE_FILES=/dev/random:/dev/urandom
 
 echo "Starting client"
-java -Dlogback.configurationFile=logback.xml -cp ${JAR} ${PACKAGE}
+java -Dlogback.configurationFile=logback.xml -jar ${JAR}

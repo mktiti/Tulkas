@@ -22,4 +22,6 @@ class DefaultEngineMessageHandler(
 
     override fun sendCallResult(callResult: CallResult, resultData: String?) = sendMessage(MessageDto(callResult, resultData))
 
+    override fun sendCallTimeout(): Boolean = sendMessage(MessageDto(BotTimeout))
+
 }

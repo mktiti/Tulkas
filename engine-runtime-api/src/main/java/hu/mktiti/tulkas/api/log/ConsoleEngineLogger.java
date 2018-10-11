@@ -1,4 +1,4 @@
-package hu.mktiti.tulkas.api;
+package hu.mktiti.tulkas.api.log;
 
 public final class ConsoleEngineLogger implements GameEngineLogger {
 

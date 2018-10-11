@@ -1,10 +1,10 @@
 package hu.mktiti.tulkas.runtime.engine
 
-import hu.mktiti.tulkas.api.GameEngineLogger
-import hu.mktiti.tulkas.api.LogTarget
+import hu.mktiti.tulkas.api.log.GameEngineLogger
+import hu.mktiti.tulkas.api.log.LogTarget
 
 class MessageHandlerEngineLogger(
-        private val messageHandler: MessageHandler
+        private val messageHandler: EngineMessageHandler
 ) : GameEngineLogger {
 
     override fun logFor(logTarget: LogTarget?, message: String?) {

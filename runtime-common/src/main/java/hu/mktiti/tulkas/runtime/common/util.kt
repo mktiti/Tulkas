@@ -16,3 +16,24 @@ fun <F, S, NF> Pair<F, S>.fst(mapper: (F) -> NF): Pair<NF, S> = mapper(first) to
 fun <F, S, NS> Pair<F, S>.snd(second: NS): Pair<F, NS> = first to second
 
 fun <F, S, NS> Pair<F, S>.snd(mapper: (S) -> NS): Pair<F, NS> = first to mapper(second)
+
+fun langThread(
+        start: Boolean = true,
+        isDaemon: Boolean = false,
+        contextClassLoader: ClassLoader? = null,
+        name: String? = null,
+        priority: Int = -1,
+        block: () -> Unit
+): Thread = Thread(Runnable(block)).apply {
+
+    if (isDaemon) this.isDaemon = true
+
+    if (priority > 0) this.priority = priority
+
+    if (name != null) this.name = name
+
+    if (contextClassLoader != null) this.contextClassLoader = contextClassLoader
+
+    if (start) this.start()
+
+}

@@ -11,6 +11,8 @@ open class SinglePlayerData<out E, out B>(
 
     override val actors: Set<Actor> by lazy { setOf(Actor.ENGINE, Actor.BOT_A) }
 
+    override val isMatch = false
+
     constructor(engineInit: () -> E, botInit: () -> B) : this(engineInit(), botInit())
 
     override fun <ER, BR> map(

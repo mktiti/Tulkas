@@ -1,7 +1,7 @@
 package hu.mktiti.tulkas.runtime.common
 
-import hu.mktiti.tulkas.api.GameResult
-import hu.mktiti.tulkas.api.LogTarget
+import hu.mktiti.tulkas.api.log.LogTarget
+import hu.mktiti.tulkas.api.match.MatchResult
 import java.io.Serializable
 
 enum class CallTarget {
@@ -21,7 +21,11 @@ data class LogEntry(val target: LogTarget, val message: String) : Header()
 
 data class CallResult(val method: String) : Header()
 
-data class MatchResult(val result: GameResult) : Header()
+data class ChallengeResultH(val points: Long?, val maxPoints: Long?) : Header()
+
+data class MatchResultH(val resultType: MatchResult.ResultType) : Header()
+
+object BotTimeout : Header()
 
 data class ErrorResult(val message: String) : Header()
 

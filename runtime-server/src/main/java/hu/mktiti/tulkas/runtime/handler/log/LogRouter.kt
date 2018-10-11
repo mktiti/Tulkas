@@ -1,6 +1,6 @@
 package hu.mktiti.tulkas.runtime.handler.log
 
-import hu.mktiti.tulkas.api.LogTarget.*
+import hu.mktiti.tulkas.api.log.LogTarget.*
 import hu.mktiti.tulkas.runtime.common.LogEntry
 
 interface LogRouter {

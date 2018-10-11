@@ -71,7 +71,9 @@
                         <goals> <goal>single</goal> </goals>
                         <configuration>
                             <archive>
-                                <manifest />
+                                <manifest>
+                                    <mainClass>hu.mktiti.tulkas.runtime.engine.EngineClientKt</mainClass>
+                                </manifest>
                             </archive>
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>

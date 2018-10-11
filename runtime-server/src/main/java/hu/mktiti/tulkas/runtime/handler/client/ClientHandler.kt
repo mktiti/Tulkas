@@ -52,7 +52,7 @@ fun startEngine(
     val port = server.localPort
     println("Listening for engine on port $port")
 
-    val process = startEngineProcess(port, logPath)
+    val process = startEngineProcess(logQueues.isMatch, port, logPath)
 
     return executor.submit(Callable {
         val socket = server.accept()
@@ -112,20 +112,22 @@ fun startBotProcess(
 ) = startClientProcess(scriptPath, port, logPath, redirectOut)
 
 fun startEngineProcess(
+        isMatch: Boolean,
         port: Int,
         logPath: Path,
         scriptPath: String = property("Client.Engine.script-path"),
         redirectOut: Boolean = boolProperty("Client.Engine.redirect-out", true)
-) = startClientProcess(scriptPath, port, logPath, redirectOut)
+) = startClientProcess(scriptPath, port, logPath, redirectOut, if (isMatch) "match" else "challenge")
 
 private fun startClientProcess(
         scriptPath: String,
         port: Int,
         logPath: Path,
-        redirectOut: Boolean = true
+        redirectOut: Boolean = true,
+        vararg otherParams: String
 ): Process {
     val path = File(scriptPath).absolutePath
-    return with(ProcessBuilder(path, HOST, port.toString(), logPath.toAbsolutePath().toString())) {
+    return with(ProcessBuilder(path, HOST, port.toString(), logPath.toAbsolutePath().toString(), *otherParams)) {
         if (redirectOut) {
             redirectOutput(ProcessBuilder.Redirect.INHERIT)
             redirectError(ProcessBuilder.Redirect.INHERIT)

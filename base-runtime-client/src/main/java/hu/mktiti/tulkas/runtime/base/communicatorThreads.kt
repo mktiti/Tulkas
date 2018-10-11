@@ -1,11 +1,10 @@
 package hu.mktiti.tulkas.runtime.base
 
-import hu.mktiti.kreator.api.inject
 import hu.mktiti.tulkas.runtime.common.*
 
 class Receiver(
-        private val channel: Channel = inject(),
-        private val inQueue: InQueue = inject()
+        private val channel: Channel,
+        private val inQueue: InQueue
 ) : Runnable {
 
     override fun run() {
@@ -23,14 +22,14 @@ class Receiver(
 }
 
 class Sender(
-        private val channel: Channel = inject(),
-        private val outQueue: OutQueue = inject()
+        private val channel: Channel,
+        private val outQueue: OutQueue
 ) : Runnable {
 
     private val log by logger()
 
     override fun run() {
-        while (true) {
+        forever {
             val message = outQueue.getMessage()
             log.info("Out message: {}", message.header)
 

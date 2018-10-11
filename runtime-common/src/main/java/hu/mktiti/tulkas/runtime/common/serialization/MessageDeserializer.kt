@@ -3,8 +3,7 @@ package hu.mktiti.tulkas.runtime.common.serialization
 import hu.mktiti.kreator.annotation.Injectable
 import hu.mktiti.kreator.annotation.InjectableType
 import hu.mktiti.kreator.property.intProperty
-import hu.mktiti.tulkas.api.GameResult
-import hu.mktiti.tulkas.api.LogTarget
+import hu.mktiti.tulkas.api.log.LogTarget
 import hu.mktiti.tulkas.runtime.common.*
 import java.io.IOException
 import java.io.Reader
@@ -120,20 +119,19 @@ class SafeMessageDeserializer : MessageDeserializer {
                 val target = safeValueOf<LogTarget>(params[0])
                 if (target != null) LogEntry(target, params[1]) else null
             },
-            HeaderTypeData("MatchResult", 2) { params ->
-                val result = safeValueOf<GameResult.ResultType>(params[0])
-                val actor = safeValueOf<GameResult.Actor>(params[1])
-
-                if (result != null) {
-                    MatchResult(GameResult(result, actor))
-                } else {
-                    null
-                }
+            HeaderTypeData("ChallengeResultH", 2) { params ->
+                val points    = params[0].toLongOrNull()
+                val maxPoints = params[1].toLongOrNull()
+                ChallengeResultH(points, maxPoints)
+            },
+            HeaderTypeData("MatchResultH", 1) { params ->
+                safeValueOf<hu.mktiti.tulkas.api.match.MatchResult.ResultType>(params[0])?.let(::MatchResultH)
             },
             HeaderTypeData("ProxyCall", 1) { params ->
                 safeValueOf<CallTarget>(params[0])?.let(::ProxyCall)
             },
             HeaderTypeData("CallResult", 1) { params -> CallResult(params[0]) },
+            HeaderTypeData("BotTimeout", 1) { _ -> BotTimeout },
             HeaderTypeData("ErrorResult", 1) { params -> ErrorResult(params[0]) },
             HeaderTypeData("ActorJar", 0) { ActorJar },
             HeaderTypeData("ShutdownNotice", 0) { ShutdownNotice },

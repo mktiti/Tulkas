@@ -48,7 +48,7 @@ fun main(args: Array<String>) {
 
     val initData = twoPlayerInitData(jars.engine, jars.botA, jars.botB)
 
-    for (i in 1..10) {
+    for (i in 1..1) {
         val handle = startGame(initData)
         handle.controlThread.join()
         stopGame(handle)

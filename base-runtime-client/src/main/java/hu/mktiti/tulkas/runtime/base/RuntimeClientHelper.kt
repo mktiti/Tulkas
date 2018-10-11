@@ -1,8 +1,6 @@
 package hu.mktiti.tulkas.runtime.base
 
-import hu.mktiti.kreator.annotation.Injectable
 import hu.mktiti.kreator.annotation.InjectableType
-import hu.mktiti.kreator.api.inject
 import hu.mktiti.tulkas.api.BotInterface
 import hu.mktiti.tulkas.runtime.common.BotDefinitionException
 
@@ -13,9 +11,8 @@ interface RuntimeClientHelper {
 
 }
 
-@Injectable(default = true)
 class DefaultRuntimeClientHelper(
-        private val binaryClassLoader: BinaryClassLoader = inject()
+        private val binaryClassLoader: BinaryClassLoader
 ) : RuntimeClientHelper {
 
     override fun searchForBotInterface(): Class<out BotInterface>? {

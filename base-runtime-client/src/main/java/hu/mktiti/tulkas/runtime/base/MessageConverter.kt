@@ -1,8 +1,6 @@
 package hu.mktiti.tulkas.runtime.base
 
-import hu.mktiti.kreator.annotation.Injectable
 import hu.mktiti.kreator.annotation.InjectableType
-import hu.mktiti.kreator.api.inject
 import hu.mktiti.tulkas.runtime.common.Message
 import hu.mktiti.tulkas.runtime.common.MessageDto
 import java.io.*
@@ -30,9 +28,8 @@ class CustomLoaderObjectInputStream(
 
 }
 
-@Injectable(tags = ["serialize"], default = true)
 class SerializationMessageConverter(
-        private val binaryClassLoader: BinaryClassLoader = inject()
+        private val binaryClassLoader: BinaryClassLoader
 ) : MessageConverter {
 
     override fun toDto(message: Message): MessageDto {

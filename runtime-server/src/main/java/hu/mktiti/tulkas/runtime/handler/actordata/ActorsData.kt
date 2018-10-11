@@ -12,6 +12,8 @@ interface ActorsData<out E, out B> {
 
     val actors: Set<Actor>
 
+    val isMatch: Boolean
+
     fun <ER, BR> map(
             engineMapper: (E) -> ER,
             botMapper: (B) -> BR
@@ -29,7 +31,7 @@ interface ActorsData<out E, out B> {
     fun safeGetBot(actor: Actor): B?
 
     fun getBot(actor: Actor): B =
-            safeGetBot(actor) ?: throw ActorArityException("Actor '$actor' is not playing or is not a bot")
+            safeGetBot(actor) ?: throw ActorArityException("BotActor '$actor' is not playing or is not a bot")
 
 }
 
@@ -47,7 +49,7 @@ interface UnifiedActorsData<out T> : ActorsData<T, T> {
     ): UnifiedActorsData<R>
 
     operator fun get(actor: Actor): T =
-            safeGet(actor) ?: throw ActorArityException("Actor '$actor' is not playing currently")
+            safeGet(actor) ?: throw ActorArityException("BotActor '$actor' is not playing currently")
 
 }
 

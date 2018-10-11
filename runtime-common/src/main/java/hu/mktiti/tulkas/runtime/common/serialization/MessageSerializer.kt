@@ -16,6 +16,8 @@ interface MessageSerializer {
 
 }
 
+private fun Long?.safeSerial(): String = this?.toString() ?: "null"
+
 @Injectable(tags = ["safe"])
 class SafeMessageSerializer : MessageSerializer {
 
@@ -37,13 +39,27 @@ class SafeMessageSerializer : MessageSerializer {
     }
 
     override fun serializeMessageDto(messageDto: MessageDto): String {
-        val name: String = messageDto.header::class.simpleName ?: throw RuntimeException("")
+        val name = when (messageDto.header) {
+            is ProxyCall   -> "ProxyCall"
+            is LogEntry    -> "LogEntry"
+            is CallResult  -> "CallResult"
+            is ChallengeResultH -> "ChallengeResultH"
+            is MatchResultH -> "MatchResultH"
+            BotTimeout     -> "BotTimeout"
+            is ErrorResult -> "ErrorResult"
+            ActorJar       -> "ActorJar"
+            ShutdownNotice -> "ShutdownNotice"
+            StartNotice    -> "StartNotice"
+        }
+
         val params: List<String> = with(messageDto.header) {
             when (this) {
-                is ProxyCall -> listOf(target.name)
-                is LogEntry -> listOf(target.name, message)
-                is CallResult -> listOf(method)
-                is MatchResult -> listOf(result.type.name, result.actor?.name ?: "null")
+                is ProxyCall   -> listOf(target.name)
+                is LogEntry    -> listOf(target.name, message)
+                is CallResult  -> listOf(method)
+                is ChallengeResultH -> listOf(points.safeSerial(), maxPoints.safeSerial())
+                is MatchResultH -> listOf(resultType.name)
+                BotTimeout     -> emptyList()
                 is ErrorResult -> listOf(message)
                 ActorJar, ShutdownNotice, StartNotice -> emptyList()
             }
