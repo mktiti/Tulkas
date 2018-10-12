@@ -17,20 +17,11 @@
         <dependency>
             <groupId>hu.mktiti.tulkas</groupId>
             <artifactId>base-runtime-client</artifactId>
-            <version>${tulkas.runtime.version}</version>
         </dependency>
 
-         <!-- Test game -->
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test</artifactId>
-            <version>${kotlin.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
