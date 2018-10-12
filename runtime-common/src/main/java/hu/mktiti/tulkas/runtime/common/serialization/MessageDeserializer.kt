@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.collections.ArrayList
 
-private fun Reader.readParameter(maxParamSize: Int = intProperty("HEADER_PARAM_LIMIT", 1000)): String? {
+private fun Reader.readParameter(maxParamSize: Int): String? {
     val readChars = LinkedList<Char>()
     var count: Long = 0
 
@@ -65,11 +65,11 @@ private fun Reader.readPartOneOf(possibilities: Collection<String>): String? {
 
 }
 
-private fun Reader.readBinaryParam(sizeLimit: Int = intProperty("BINARY_PARAM_LIMIT", 1_000_000)): String? {
-    val sizeParam = readParameter()?.toIntOrNull() ?:
+private fun Reader.readBinaryParam(maxBinaryParamSize: Int, maxParamSize: Int): String? {
+    val sizeParam = readParameter(maxParamSize)?.toIntOrNull() ?:
         throw MessageException("Illegal size param")
 
-    if (sizeParam > sizeLimit) {
+    if (sizeParam > maxBinaryParamSize) {
         throw MessageException("Illegal size param")
     }
 
@@ -110,7 +110,10 @@ interface MessageDeserializer {
 class HeaderTypeData(val name: String, val paramCount: Int, val creator: (List<String>) -> Header?)
 
 @Injectable(tags = ["safe"])
-class SafeMessageDeserializer : MessageDeserializer {
+class SafeMessageDeserializer(
+        private val maxParamSize: Int = intProperty("HEADER_PARAM_LIMIT", 1000),
+        private val maxBinaryParamSize: Int = intProperty("BINARY_PARAM_LIMIT", 1_000_000)
+) : MessageDeserializer {
 
     private val log by logger()
 
@@ -131,7 +134,7 @@ class SafeMessageDeserializer : MessageDeserializer {
                 safeValueOf<CallTarget>(params[0])?.let(::ProxyCall)
             },
             HeaderTypeData("CallResult", 1) { params -> CallResult(params[0]) },
-            HeaderTypeData("BotTimeout", 1) { _ -> BotTimeout },
+            HeaderTypeData("BotTimeout", 0) { _ -> BotTimeout },
             HeaderTypeData("ErrorResult", 1) { params -> ErrorResult(params[0]) },
             HeaderTypeData("ActorJar", 0) { ActorJar },
             HeaderTypeData("ShutdownNotice", 0) { ShutdownNotice },
@@ -157,19 +160,22 @@ class SafeMessageDeserializer : MessageDeserializer {
                 ?: throw MessageException("No actordata about header type, this should not happen")
 
         val params: List<String> = (0 until headerData.paramCount)
-                .map { reader.readParameter() }
+                .map { reader.readParameter(maxParamSize) }
                 .liftNulls() ?: throw MessageException("Header parameter cannot be null")
 
         try {
             val header = headerData.creator(params.map(this::decode))
                     ?: throw MessageException("Invalid header parameter for $headerType")
 
-            MessageDto(header, reader.readBinaryParam())
+            MessageDto(header, reader.readBinaryParam(maxBinaryParamSize = maxBinaryParamSize, maxParamSize = maxParamSize))
         } catch (_: IndexOutOfBoundsException) {
             throw MessageException("Header parameter missing for $headerType")
         }
     } catch (ioe: IOException) {
         log.error("IOException while parsing message", ioe)
         throw MessageException("IOException while trying to parse message")
+    } catch (iae: IllegalArgumentException) {
+        log.error("IllegalArgumentException while parsing message", iae)
+        throw MessageException("IllegalArgumentException while trying to parse message")
     }
 }

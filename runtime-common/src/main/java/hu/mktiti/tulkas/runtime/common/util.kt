@@ -2,7 +2,7 @@ package hu.mktiti.tulkas.runtime.common
 
 inline fun <reified T : Enum<T>> safeValueOf(name: String): T? = enumValues<T>().find { it.name == name }
 
-fun <T : Any> List<T?>.liftNulls(): List<T>? {
+fun <T : Any> Collection<T?>.liftNulls(): List<T>? {
     val filtered: List<T> = filterNotNull()
     return if (filtered.size == size) filtered else null
 }
