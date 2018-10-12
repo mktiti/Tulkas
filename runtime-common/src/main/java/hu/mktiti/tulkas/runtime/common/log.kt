@@ -7,6 +7,7 @@ import hu.mktiti.kreator.property.boolProperty
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.helpers.NOPLogger
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.reflect.full.companionObject
 
 object UnifiedLogFactory {
@@ -17,10 +18,16 @@ object UnifiedLogFactory {
         { name -> getContext().getLogger(name) }
     }
 
-    private val appenders: MutableCollection<Appender<ILoggingEvent>> = ArrayList(1)
+    private var appenders: Collection<Appender<ILoggingEvent>> = emptyList()
+    private val appenderAddLock = ReentrantLock()
 
     fun addAppender(appender: Appender<ILoggingEvent>) {
-        appenders += appender
+        synchronized(appenderAddLock) {
+            appenders = ArrayList<Appender<ILoggingEvent>>(appenders.size + 1).apply {
+                addAll(appenders)
+                add(appender)
+            }
+        }
     }
 
     fun getLogger(name: String): Logger {
