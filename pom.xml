@@ -10,8 +10,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.9</maven.compiler.source>
-        <maven.compiler.target>1.9</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
 
         <kotlin.version>1.2.61</kotlin.version>
 
@@ -23,7 +23,7 @@
         <kreator.annotation.version>0.1</kreator.annotation.version>
         <kreator.api.version>0.1.1</kreator.api.version>
         <kreator.core.version>0.1.1</kreator.core.version>
-        <kreator.property.version>0.1.5</kreator.property.version>
+        <kreator.property.version>0.1.6-SNAPSHOT</kreator.property.version>
     </properties>
 
     <modules>

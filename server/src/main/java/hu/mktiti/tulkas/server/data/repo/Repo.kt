@@ -1,76 +1,144 @@
 package hu.mktiti.tulkas.server.data.repo
 
-import hu.mktiti.tulkas.server.data.ConnectionSource
-import hu.mktiti.tulkas.server.data.Entity
-import java.sql.Connection
+import hu.mktiti.tulkas.server.data.dao.ConnectionSource
+import hu.mktiti.tulkas.server.data.dao.Entity
+import hu.mktiti.tulkas.server.data.useWith
 import java.sql.PreparedStatement
 import java.sql.ResultSet
+import java.sql.Statement
 
-abstract class Repo<T : Entity>(
-        protected val tableName: String,
+interface Repo<T : Entity> {
+
+    fun find(id: Long): T?
+
+    fun listAll(): List<T>
+
+    fun delete(id: Long)
+
+    fun delete(entity: T) = delete(entity.id)
+
+    fun deleteAll()
+
+    fun save(entity: T): Long
+
+    fun saveAll(entities: Iterable<T>): List<Long>
+
+}
+
+abstract class DbRepo<T : Entity>(
+        private val tableName: String,
+        insertCols: List<String>,
         private val connectionSource: ConnectionSource
-) {
+) : Repo<T> {
 
-    abstract fun mapRow(resultSet: ResultSet, prefix: String = ""): T
+    private val insertCommand = "insert into $tableName (${insertCols.joinToString()}) values (${insertCols.joinToString { "?" }});"
 
-    infix fun String.and(field: String) = if (this == "") field else "${this}_$field"
+    protected abstract fun PrefixedResultSet.mapRow(): T
 
-    fun mapSingle(resultSet: ResultSet, prefix: String = ""): T?
-        = if (resultSet.next()) mapRow(resultSet, prefix) else null
+    protected abstract fun insertMap(entity: T): List<Any?>
 
-    fun mapAll(resultSet: ResultSet, prefix: String = ""): List<T>
-        = generateSequence {
-            if (resultSet.next()) mapRow(resultSet, prefix) else null
-        }.toList()
+    protected fun mapSingle(resultSet: ResultSet, prefix: String = ""): T?
+        = resultSet.use { if (resultSet.next()) PrefixedResultSet(resultSet, prefix).mapRow() else null }
 
-    fun find(id: Long): T? = selectSingle("select * from $tableName where id = ?", id)
+    protected fun mapAll(resultSet: ResultSet, prefix: String = ""): List<T> {
+        val prefixedRS = PrefixedResultSet(resultSet, prefix)
+        return resultSet.mapAll {
+            prefixedRS.mapRow()
+        }
+    }
 
-    fun listAll(): List<T> = selectMulti("select * from $tableName")
+    override fun find(id: Long): T? = selectSingle("select * from $tableName where id = ? order by id;", id)
 
-    fun <R> select(
+    override fun listAll(): List<T> = selectMulti("select * from $tableName order by id;")
+
+    protected fun <R> select(
             query: String,
             setter: PreparedStatement.() -> Unit,
-            transformer: (ResultSet) -> R): R = withConn {
+            transformer: (ResultSet) -> R): R = withConnection {
 
-        prepareStatement(query).use { prepared ->
-            prepared.setter()
-            prepared.executeQuery().use(transformer)
+        prepareStatement(query).useWith {
+            setter()
+            executeQuery().use(transformer)
         }
     }
 
-    fun <R> select(
+    protected fun <R> select(
             query: String,
             params: List<Any?>,
-            transformer: (ResultSet) -> R): R = withConn {
+            transformer: (ResultSet) -> R): R = select(query, transformer = transformer, setter = {
+        params.forEachIndexed { i, p ->
+            setObject(i + 1, p)
+        }
+    })
 
-        prepareStatement(query).use { prepared ->
-            with(prepared) {
-                params.forEachIndexed { i, p ->
-                    setObject(i, p)
-                }
-                executeQuery().use(transformer)
+    protected fun selectSingle(query: String, prefix: String = "", setter: PreparedStatement.() -> Unit): T? =
+            select(query, setter) { rs -> mapSingle(rs, prefix) }
+
+    protected fun selectSingle(query: String, params: List<Any?> = emptyList(), prefix: String = ""): T? =
+            select(query, params) { rs -> mapSingle(rs, prefix) }
+
+    protected fun selectSingle(query: String, vararg params: Any?, prefix: String = ""): T? =
+            selectSingle(query, params.asList(), prefix)
+
+    protected fun selectMulti(query: String, prefix: String = "", setter: PreparedStatement.() -> Unit): List<T> =
+            select(query, setter) { rs -> mapAll(rs, prefix) }
+
+    protected fun selectMulti(query: String, params: List<Any?> = emptyList(), prefix: String = ""): List<T> =
+            select(query, params) { rs -> mapAll(rs, prefix) }
+
+    protected fun selectMulti(query: String, vararg params: Any?, prefix: String = ""): List<T> =
+            selectMulti(query, params.asList(), prefix)
+
+    protected fun <R : Any> selectMultiTo(
+            query: String,
+            vararg params: Any?,
+            rowTransformer: PrefixedResultSet.() -> R
+    ): List<R> =
+            select(query, params = params.toList()) { rs ->
+                PrefixedResultSet(rs, "").mapAll(rowTransformer)
             }
+
+    protected fun <R> runUpdate(
+            query: String,
+            setter: PreparedStatement.() -> Unit = {},
+            transformer: PreparedStatement.() -> R): R = withConnection {
+        prepareStatement(query, Statement.RETURN_GENERATED_KEYS).useWith {
+            setter()
+            executeUpdate()
+            transformer()
         }
     }
 
-    fun selectSingle(query: String, prefix: String = "", setter: PreparedStatement.() -> Unit): T? =
-            select(query, setter) { rs -> mapSingle(rs, prefix) }
+    protected fun <R> runUpdate(query: String, params: List<Any?>, transformer: PreparedStatement.() -> R): R =
+        runUpdate(query, transformer = transformer, setter = { setAllParams(params) })
 
-    fun selectSingle(query: String, params: List<Any?> = emptyList(), prefix: String = ""): T? =
-            select(query, params) { rs -> mapSingle(rs, prefix) }
+    protected fun <R> runUpdate(
+            query: String,
+            vararg params: Any?,
+            transformer: PreparedStatement.() -> R
+    ): R = runUpdate(query, params.toList(), transformer)
 
-    fun selectSingle(query: String, vararg params: Any?, prefix: String = ""): T? =
-            selectSingle(query, params.asList(), prefix)
+    override fun delete(id: Long) = runUpdate("delete from $tableName where id = ?;", id) {}
 
-    fun selectMulti(query: String, prefix: String = "", setter: PreparedStatement.() -> Unit): List<T> =
-            select(query, setter) { rs -> mapAll(rs, prefix) }
+    override fun deleteAll() = runUpdate("delete from $tableName;") {}
 
-    fun selectMulti(query: String, params: List<Any?> = emptyList(), prefix: String = ""): List<T> =
-            select(query, params) { rs -> mapAll(rs, prefix) }
+    override fun save(entity: T): Long = runUpdate(insertCommand, insertMap(entity)) {
+        generatedKeys.useWith {
+            next()
+            getLong(1)
+        }
+    }
 
-    fun selectMulti(query: String, vararg params: Any?, prefix: String = ""): List<T> =
-            selectMulti(query, params.asList(), prefix)
+    override fun saveAll(entities: Iterable<T>): List<Long> = transaction {
+        prepare(insertCommand).useWith {
+            for (entity in entities) {
+                setAllParams(insertMap(entity))
+                addBatch()
+            }
+            executeBatch()
+            generatedKeys.mapAll { getLong(1) }
+        }
 
-    private inline fun <T> withConn(block: Connection.() -> T): T = connectionSource().use(block)
+    }
 
 }

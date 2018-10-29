@@ -93,10 +93,9 @@
                 <version>2.22.1</version>
                 <configuration>
                     <environmentVariables>
-                        <kreator-env>test.unit</kreator-env>
+                        <KREATOR_ENV>test.unit</KREATOR_ENV>
                         <KREATOR_PROPS_SOURCE>env-var</KREATOR_PROPS_SOURCE>
                         <KREATOR_PROPS_PREFIX>TULKAS_</KREATOR_PROPS_PREFIX>
-                        <KREATOR_PROPS_SOURCE>env-var</KREATOR_PROPS_SOURCE>
                         <TULKAS_DISABLE_LOG>true</TULKAS_DISABLE_LOG>
                     </environmentVariables>
                 </configuration>

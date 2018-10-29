@@ -1,4 +1,4 @@
-package hu.mktiti.tulkas.server.data
+package hu.mktiti.tulkas.server.data.dao
 
 import hu.mktiti.kreator.annotation.Injectable
 import hu.mktiti.kreator.annotation.InjectableArity

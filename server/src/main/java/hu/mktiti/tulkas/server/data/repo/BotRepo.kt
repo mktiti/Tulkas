@@ -1,28 +1,90 @@
 package hu.mktiti.tulkas.server.data.repo
 
 import hu.mktiti.kreator.annotation.Injectable
+import hu.mktiti.kreator.annotation.InjectableArity
+import hu.mktiti.kreator.annotation.InjectableType
 import hu.mktiti.kreator.api.inject
-import hu.mktiti.tulkas.server.data.Bot
-import hu.mktiti.tulkas.server.data.ConnectionSource
-import java.sql.ResultSet
+import hu.mktiti.tulkas.server.data.dao.Bot
+import hu.mktiti.tulkas.server.data.dao.ConnectionSource
+import hu.mktiti.tulkas.server.data.dao.JarData
 
-@Injectable
-class BotRepo(
+@InjectableType
+interface BotRepo : Repo<Bot> {
+
+    fun createBot(ownerId: Long, gameId: Long, name: String, jar: ByteArray): Long?
+
+    fun botsOf(ownerId: Long): List<Bot>
+
+    fun botsOf(ownerUsername: String): List<Pair<Bot, String>>
+
+    fun botsByGame(gameId: Long): List<Pair<Bot, String>>
+
+}
+
+@Injectable(arity = InjectableArity.SINGLETON, tags = ["hsqldb"], default = true)
+class BotDbRepo(
+        private val jarDataRepo: JarDataRepo = inject(),
         connectionSource: ConnectionSource = inject()
-) : Repo<Bot>("Bot", connectionSource) {
+) : DbRepo<Bot>(tableName, listOf("gameId", "ownerId", "name", "jarId"), connectionSource), BotRepo {
 
-    override fun mapRow(resultSet: ResultSet, prefix: String) = Bot(
-            id =      resultSet.getLong(prefix and "id"),
-            gameId =  resultSet.getLong(prefix and "gameId"),
-            ownerId = resultSet.getLong(prefix and "ownerId"),
-            name =    resultSet.getString(prefix and "name"),
-            jar =     resultSet.getBytes(prefix and "jar")
+    companion object {
+        const val tableName = "Bot"
+
+        private const val selectByUsernameQuery = """
+            select b.*, g.name as gameName
+            from $tableName b
+            join ${UserDbRepo.tableName} u on b.ownerId = u.id
+            join ${GameDbRepo.tableName} g on b.gameId = g.id
+            where u.name = ?
+            order by b.id
+        """
+
+        private const val selectByGameWithOwner = """
+            select b.*, o.name as ownerName
+            from $tableName b
+            join ${UserDbRepo.tableName} o on b.ownerId = o.id
+            where b.gameId = ?
+            order by b.id
+        """
+    }
+
+    override fun PrefixedResultSet.mapRow() = Bot(
+            id = long("id"),
+            gameId = long("gameId"),
+            ownerId = long("ownerId"),
+            name = string("name"),
+            jarId = long("jarId")
     )
 
-    fun botsOf(ownerId: Long): List<Bot> =
+    override fun insertMap(entity: Bot) = with(entity) {
+        listOf(gameId, ownerId, name, jarId)
+    }
+
+    override fun createBot(
+            ownerId: Long,
+            gameId: Long,
+            name: String,
+            jar: ByteArray
+    ) = guardedTransaction<Long> {
+        save(Bot(
+            ownerId = ownerId,
+            gameId = gameId,
+            name = name,
+            jarId = jarDataRepo.save(JarData(data = jar))
+        ))
+    }
+
+    override fun botsOf(ownerId: Long): List<Bot> =
             selectMulti("select * from $tableName where ownerId = ?", ownerId)
 
-    fun botsByGame(gameId: Long): List<Bot> =
-            selectMulti("select * from $tableName where gameId = ?", gameId)
+    override fun botsOf(ownerUsername: String): List<Pair<Bot, String>> =
+            selectMultiTo(selectByUsernameQuery, ownerUsername) {
+                mapRow() to string("gameName")
+            }
+
+    override fun botsByGame(gameId: Long): List<Pair<Bot, String>> =
+            selectMultiTo(selectByGameWithOwner, gameId) {
+                mapRow() to string("ownerName")
+            }
 
 }
