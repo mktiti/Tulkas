@@ -3,6 +3,7 @@ package hu.mktiti.tulkas.server.data.handler
 import hu.mktiti.kreator.api.inject
 import hu.mktiti.tulkas.server.data.dto.*
 import hu.mktiti.tulkas.server.data.repo.BotRepo
+import hu.mktiti.tulkas.server.data.repo.GameLogRepo
 import hu.mktiti.tulkas.server.data.repo.GameRepo
 import hu.mktiti.tulkas.server.data.repo.UserRepo
 import javax.ws.rs.*
@@ -13,7 +14,8 @@ import javax.ws.rs.core.Response
 class UserHandler(
         private val userRepo: UserRepo = inject(),
         private val gameRepo: GameRepo = inject(),
-        private val botRepo:  BotRepo  = inject()
+        private val botRepo: BotRepo = inject(),
+        private val gameLogRepo: GameLogRepo = inject()
 ) {
 
     @GET
@@ -54,12 +56,14 @@ class UserHandler(
 
 
     @Path("{username}/bots")
-    @PUT
+    @POST
     @Consumes(MediaType.APPLICATION_JSON)
     fun uploadBot(
             @PathParam("username") username: String,
             botData: BotUploadData
     ): Response {
+        println("upload data: $botData")
+
         val user = userRepo.findByName(username) ?: return badRequest("User not found")
         val game = gameRepo.findByName(botData.game) ?: return badRequest("Game not found")
 
@@ -69,6 +73,34 @@ class UserHandler(
                     gameId  = game.id,
                     name    = botData.name,
                     jar     = fromBase64(botData.jarString)
+            )
+        }
+    }
+
+    @Path("{username}/bots/{botName}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    fun getBots(
+            @PathParam("username") username: String,
+            @PathParam("botName") botName: String
+    ): Response {
+        val bot = botRepo.botByUserAndName(username, botName) ?: return notFound()
+        val game = gameRepo.find(bot.id) ?: return notFound()
+
+        val simpleBot = bot.toSimpleDto(username, game.name)
+
+        val played = if (game.isMatch) {
+            gameLogRepo.matchesOfBot(bot.id).map { fromMatch(simpleBot, it) }
+        } else {
+            gameLogRepo.challengesOfBot(bot.id).map { fromChallenge(simpleBot, it) }
+        }
+
+        return entity {
+            DetailedBotData(
+                    name = bot.name,
+                    ownerUsername = username,
+                    game = game.name,
+                    played = played
             )
         }
     }
@@ -84,21 +116,22 @@ class UserHandler(
     }
 
     @Path("{username}/games")
-    @PUT
+    @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     fun uploadBot(
             @PathParam("username") username: String,
-            gameData: GameUploadData
+            uploadData: GameUploadData
     ): Response {
         val user = userRepo.findByName(username) ?: return badRequest("User not found")
 
-        return pathCreated("users/$username/games/${gameData.name}") {
+        return pathCreated("users/$username/games/${uploadData.name}") {
             gameRepo.createGame(
                     ownerId = user.id,
-                    name = gameData.name,
-                    isMatch = gameData.isMatch,
-                    apiJar = fromBase64(gameData.apiJarString),
-                    engineJar = fromBase64(gameData.engineJarString)
+                    name = uploadData.name,
+                    isMatch = uploadData.isMatch,
+                    apiJar = fromBase64(uploadData.apiJarString),
+                    engineJar = fromBase64(uploadData.engineJarString)
             )
         }
     }

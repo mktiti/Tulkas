@@ -27,19 +27,22 @@ class JarDataDbRepo(
         const val tableName = "JarData"
 
         private const val botSelectQuery = """
-            select d.* from $tableName d
+            select d.*
+            from $tableName d
             join ${BotDbRepo.tableName} b on b.jarId = d.id
             where b.id = ?
         """
 
         private const val gameApiSelectQuery = """
-            select d.* from $tableName d
+            select d.*
+            from $tableName d
             join ${GameDbRepo.tableName} g on g.apiJarId = d.id
             where g.id = ?
         """
 
         private const val gameEngineSelectQuery = """
-            select d.* from $tableName d
+            select d.*
+            from $tableName d
             join ${GameDbRepo.tableName} g on g.engineJarApi = d.id
             where g.id = ?
         """
@@ -52,10 +55,10 @@ class JarDataDbRepo(
 
     override fun insertMap(entity: JarData) = listOf(entity.data)
 
-    override fun loadBot(botId: Long): ByteArray? = selectSingle(botSelectQuery, listOf(botId), prefix = "d")?.data
+    override fun loadBot(botId: Long): ByteArray? = selectSingle(botSelectQuery, listOf(botId))?.data
 
-    override fun loadGameApi(engineId: Long): ByteArray? = selectSingle(gameApiSelectQuery, listOf(engineId), prefix = "d")?.data
+    override fun loadGameApi(engineId: Long): ByteArray? = selectSingle(gameApiSelectQuery, listOf(engineId))?.data
 
-    override fun loadGameEngine(engineId: Long): ByteArray? = selectSingle(gameEngineSelectQuery, listOf(engineId), prefix = "d")?.data
+    override fun loadGameEngine(engineId: Long): ByteArray? = selectSingle(gameEngineSelectQuery, listOf(engineId))?.data
 
 }

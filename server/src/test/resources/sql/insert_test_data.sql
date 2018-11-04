@@ -48,3 +48,10 @@ insert into GameLog(gameId, botAId, botBId, time, result)
 --      result: 100/200
 insert into GameLog(gameId, botAId, botBId, time, result)
     values (1, 4, null, timestamp '2010-01-01 12:34:00', '100/200');
+
+--ActorLog
+-- #0 - match: #0
+insert into ActorLog(gameId, sender, target, relativeIndex, message)
+    values (0, 'ENGINE', 'BOT_A', 0, 'Hello there!');
+insert into ActorLog(gameId, sender, target, relativeIndex, message)
+    values (0, 'BOT_A', 'ENGINE', 1, 'General Kenobi!');

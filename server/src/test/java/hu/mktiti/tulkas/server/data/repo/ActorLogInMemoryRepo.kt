@@ -22,4 +22,7 @@ class ActorLogInMemoryRepo(
             )
         })
 
+    override fun logsOfMatch(matchId: Long): List<ActorLog> = data.values
+            .filter { it.gameId == matchId }
+            .sortedBy { it.relativeIndex }
 }

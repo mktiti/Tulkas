@@ -9,16 +9,39 @@
             </div>
             <div v-if="game.match">PvP game</div>
             <div v-else>Challenge</div>
+            <div>
+                <a :href="downloadPath" :download="game.name + '-api.jar'">Download api</a>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
+    import {axiosConfig} from "../main";
+
     export default {
         name: "GameCard",
         props: [
             'game'
-        ]
+        ],
+        data() {
+            return {
+                downloadPath: ''
+            };
+        },
+        watch: {
+            game: function () {
+                this.updateDownloadPath();
+            }
+        },
+        mounted: function () {
+            this.updateDownloadPath();
+        },
+        methods: {
+            updateDownloadPath: function () {
+                this.downloadPath = axiosConfig.baseURL + 'games/' + this.game.name + '/api'
+            }
+        }
     }
 </script>
 

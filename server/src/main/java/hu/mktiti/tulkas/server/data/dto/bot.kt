@@ -12,6 +12,13 @@ fun Bot.toSimpleDto(ownerName: String, gameName: String) = SimpleBotDto(name, ow
 
 fun List<Pair<Bot, String>>.toSimpleDtos(ownerName: String) = map { it.first.toSimpleDto(ownerName, it.second) }
 
+data class DetailedBotData(
+        val name: String,
+        val ownerUsername: String,
+        val game: String,
+        val played: List<SimpleMatchDto>
+)
+
 data class BotUploadData(
         val name: String,
         val game: String,

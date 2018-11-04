@@ -1,7 +1,7 @@
 <template>
     <div id="card">
         <span id="name-label">
-            <router-link :to="'users/' + bot.ownerUsername + '/bots/' + bot.name" >{{ bot.name }}</router-link>
+            <router-link :to="'/users/' + bot.ownerUsername + '/bots/' + bot.name" >{{ bot.name }}</router-link>
         </span>
         <div id="details">
             <div>

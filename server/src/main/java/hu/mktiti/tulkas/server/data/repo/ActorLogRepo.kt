@@ -12,6 +12,8 @@ interface ActorLogRepo : Repo<ActorLog> {
 
     fun saveLog(gameId: Long, target: String, messages: List<Pair<String, String>>): List<Long>
 
+    fun logsOfMatch(matchId: Long): List<ActorLog>
+
 }
 
 @Injectable(arity = InjectableArity.SINGLETON, tags = ["hsqldb"], default = true)
@@ -47,5 +49,8 @@ class ActorLogDbRepo(
                     relativeIndex = i
             )
         })
+
+    override fun logsOfMatch(matchId: Long): List<ActorLog> =
+            selectMulti("select * from $tableName where gameId = ? order by relativeIndex", matchId)
 
 }

@@ -18,11 +18,11 @@ fun main(args: Array<String>) {
         initOrder = 0
         setInitParameter(
                 "jersey.config.server.provider.packages",
-                "hu.mktiti.tulkas.server.data.handler, org.codehaus.jackson.jaxrs"
+                "hu.mktiti.tulkas.server.data.handler, org.codehaus.jackson.jaxrs, org.glassfish.jersey.examples.multipart"
         )
         setInitParameter(
                 "jersey.config.server.provider.classnames",
-                "org.glassfish.jersey.jackson.JacksonFeature"
+                "org.glassfish.jersey.jackson.JacksonFeature, org.glassfish.jersey.media.multipart.MultiPartFeature"
         )
     }
 

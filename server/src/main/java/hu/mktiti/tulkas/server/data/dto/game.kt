@@ -1,6 +1,7 @@
 package hu.mktiti.tulkas.server.data.dto
 
 import hu.mktiti.tulkas.server.data.dao.Game
+import org.codehaus.jackson.annotate.JsonProperty
 import javax.xml.bind.annotation.XmlRootElement
 
 @XmlRootElement
@@ -24,8 +25,8 @@ data class DetailedGameDto(
 )
 
 data class GameUploadData(
-        val name: String,
-        val isMatch: Boolean,
-        val apiJarString: String,
-        val engineJarString: String
+        @JsonProperty("name") val name: String,
+        @JsonProperty("isMatch") val isMatch: Boolean,
+        @JsonProperty("apiJarString") val apiJarString: String,
+        @JsonProperty("engineJarString") val engineJarString: String
 )

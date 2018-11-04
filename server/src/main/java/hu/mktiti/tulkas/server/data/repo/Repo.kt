@@ -98,6 +98,17 @@ abstract class DbRepo<T : Entity>(
                 PrefixedResultSet(rs, "").mapAll(rowTransformer)
             }
 
+    protected fun <R : Any> selectMultiTo(
+            query: String,
+            vararg params: Any?,
+            prefixedCreator: () -> List<String>,
+            rowTransformer: (PrefixedResultSet, List<PrefixedResultSet>) -> R
+    ): List<R> = select(query, params.toList()) { rs ->
+        val prefixed = PrefixedResultSet(rs)
+        val rsViews = prefixedCreator().map { PrefixedResultSet(rs, it) }
+        rs.mapAll { rowTransformer(prefixed, rsViews) }
+    }
+
     protected fun <R> runUpdate(
             query: String,
             setter: PreparedStatement.() -> Unit = {},

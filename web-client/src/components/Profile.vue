@@ -1,7 +1,12 @@
 <template>
     <div>
-        <GamePanel :user="user" />
-        <BotPanel  :user="user" />
+        <div class="side-panel">
+            <GamePanel :user="user" />
+            <GameUploadCard v-on:create-game="createGame($event)" />
+        </div>
+        <div class="side-panel">
+            <BotPanel :user="user" />
+        </div>
     </div>
 </template>
 
@@ -9,10 +14,11 @@
     import BotPanel from "./BotPanel";
     import GamePanel from "./GamePanel";
     import {globalState} from "../main";
+    import GameUploadCard from "./GameUploadCard";
 
     export default {
         name: "Profile",
-        components: {GamePanel, BotPanel},
+        components: {GameUploadCard, GamePanel, BotPanel},
         data() {
             return {
                 user: ''
@@ -33,11 +39,27 @@
                 } else {
                     this.user = globalState.loggedInUser;
                 }
+            },
+            createGame: function (event) {
+                this.$axios.post("users/" + this.user + "/games", {
+                    name: event.name,
+                    isMatch: event.isMatch,
+                    apiJarString: event.apiJar,
+                    engineJarString: event.engineJar
+                }).then(function(){
+                    alert('SUCCESS!!');
+                }).catch(function(){
+                    alert('FAILURE!!');
+                });
+
             }
         }
     }
 </script>
 
 <style scoped>
-
+    .side-panel {
+        display: inline-block;
+        vertical-align: top;
+    }
 </style>

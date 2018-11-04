@@ -9,6 +9,7 @@ import Games from './components/Games.vue'
 import Game from './components/Game.vue'
 import GamePanel from './components/GamePanel.vue'
 import BotPanel from './components/BotPanel.vue'
+import Bot from './components/Bot.vue'
 
 Vue.use(Router);
 Vue.config.productionTip = false;
@@ -16,6 +17,7 @@ Vue.config.productionTip = false;
 const routes = [
     { path: '/login', component: Login },
     { path: '/users/:user', component: Profile },
+    { path: '/users/:user/bots/:bot', component: Bot },
     { path: '/games', component: Games },
     { path: '/games/:game', component: Game },
     { path: '/mygames', component: GamePanel },
@@ -26,7 +28,7 @@ const router = new Router({
     routes: routes
 });
 
-const axiosConfig = {
+export const axiosConfig = {
     baseURL: 'http://localhost:8000/api/',
     timeout: 30000
 };

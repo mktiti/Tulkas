@@ -19,6 +19,8 @@ interface BotRepo : Repo<Bot> {
 
     fun botsByGame(gameId: Long): List<Pair<Bot, String>>
 
+    fun botByUserAndName(username: String, name: String): Bot?
+
 }
 
 @Injectable(arity = InjectableArity.SINGLETON, tags = ["hsqldb"], default = true)
@@ -29,6 +31,20 @@ class BotDbRepo(
 
     companion object {
         const val tableName = "Bot"
+
+        val columns = listOf("id", "gameId", "ownerId", "name", "jarId")
+
+        fun prefixedCols(prefix: String) = columns.joinToString(separator = ", ") { "$prefix.$it as ${prefix}_$it" }
+
+        fun staticMapRow(prefixed: PrefixedResultSet) = with(prefixed) {
+            Bot(
+                id = long("id"),
+                gameId = long("gameId"),
+                ownerId = long("ownerId"),
+                name = string("name"),
+                jarId = long("jarId")
+            )
+        }
 
         private const val selectByUsernameQuery = """
             select b.*, g.name as gameName
@@ -46,15 +62,17 @@ class BotDbRepo(
             where b.gameId = ?
             order by b.id
         """
+
+        private const val selectByOwnerAndName = """
+            select b.*
+            from $tableName b
+            join ${UserDbRepo.tableName} o on b.ownerId = o.id
+            where o.name = ?
+                and b.name = ?
+        """
     }
 
-    override fun PrefixedResultSet.mapRow() = Bot(
-            id = long("id"),
-            gameId = long("gameId"),
-            ownerId = long("ownerId"),
-            name = string("name"),
-            jarId = long("jarId")
-    )
+    override fun PrefixedResultSet.mapRow() = staticMapRow(this)
 
     override fun insertMap(entity: Bot) = with(entity) {
         listOf(gameId, ownerId, name, jarId)
@@ -86,5 +104,8 @@ class BotDbRepo(
             selectMultiTo(selectByGameWithOwner, gameId) {
                 mapRow() to string("ownerName")
             }
+
+    override fun botByUserAndName(username: String, name: String): Bot? =
+            selectSingle(selectByOwnerAndName, username, name)
 
 }
