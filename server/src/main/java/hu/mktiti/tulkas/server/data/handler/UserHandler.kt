@@ -25,7 +25,7 @@ class UserHandler(
         return list.map { SimpleUserDto(it.name) }
     }
 
-    @PUT
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
     fun createUser(
             userData: UserUploadData
@@ -58,12 +58,11 @@ class UserHandler(
     @Path("{username}/bots")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     fun uploadBot(
             @PathParam("username") username: String,
             botData: BotUploadData
     ): Response {
-        println("upload data: $botData")
-
         val user = userRepo.findByName(username) ?: return badRequest("User not found")
         val game = gameRepo.findByName(botData.game) ?: return badRequest("Game not found")
 
@@ -85,7 +84,7 @@ class UserHandler(
             @PathParam("botName") botName: String
     ): Response {
         val bot = botRepo.botByUserAndName(username, botName) ?: return notFound()
-        val game = gameRepo.find(bot.id) ?: return notFound()
+        val game = gameRepo.find(bot.gameId) ?: return notFound()
 
         val simpleBot = bot.toSimpleDto(username, game.name)
 

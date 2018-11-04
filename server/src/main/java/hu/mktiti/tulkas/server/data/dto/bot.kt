@@ -1,6 +1,7 @@
 package hu.mktiti.tulkas.server.data.dto
 
 import hu.mktiti.tulkas.server.data.dao.Bot
+import org.codehaus.jackson.annotate.JsonProperty
 
 data class SimpleBotDto(
         val name: String,
@@ -20,7 +21,7 @@ data class DetailedBotData(
 )
 
 data class BotUploadData(
-        val name: String,
-        val game: String,
-        val jarString: String
+        @JsonProperty("name") val name: String,
+        @JsonProperty("game") val game: String,
+        @JsonProperty("jarString") val jarString: String
 )

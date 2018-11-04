@@ -13,7 +13,7 @@
             <label for="engine-in">Engine jar data</label>
             <input id="engine-in" type="file" ref="engineIn" accept=".jar" @change="loadEngine"/>
             <br />
-            <button :v-if="apiJar !== '' && engineJar !== ''" @click="createGame">Create</button>
+            <button v-if="name && apiJar && engineJar" @click="createGame">Create</button>
         </div>
     </div>
 </template>
