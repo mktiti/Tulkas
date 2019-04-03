@@ -31,13 +31,21 @@ class BotClient(
         val messageHandler: BotMessageHandler = DefaultBotMessageHandler(inQueue, outQueue, messageConverter)
         BotLoggerFactory.setDefaultLogger(MessageHandlerBotLogger(messageHandler))
 
-        val actorBinary = messageHandler.loadActorBinary()
-        if (actorBinary == null) {
-            log.error("BotActor binary is null")
+        val apiBinary = messageHandler.loadActorBinary(ActorBinType.API)
+        if (apiBinary == null) {
+            log.error("Game api binary is null")
             log.error("Shutting down")
             return
         }
 
+        val actorBinary = messageHandler.loadActorBinary(ActorBinType.ACTOR)
+        if (actorBinary == null) {
+            log.error("Bot actor binary is null")
+            log.error("Shutting down")
+            return
+        }
+
+        binaryClassLoader.loadFromBinary(apiBinary)
         binaryClassLoader.loadFromBinary(actorBinary)
 
         val proxyCallExecutor = Executors.newSingleThreadExecutor()

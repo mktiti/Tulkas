@@ -47,7 +47,7 @@ class SafeMessageSerializer : MessageSerializer {
             is MatchResultH -> "MatchResultH"
             BotTimeout     -> "BotTimeout"
             is ErrorResult -> "ErrorResult"
-            ActorJar       -> "ActorJar"
+            is ActorJar       -> "ActorJar"
             ShutdownNotice -> "ShutdownNotice"
             StartNotice    -> "StartNotice"
         }
@@ -61,7 +61,8 @@ class SafeMessageSerializer : MessageSerializer {
                 is MatchResultH -> listOf(resultType.name)
                 BotTimeout     -> emptyList()
                 is ErrorResult -> listOf(message)
-                ActorJar, ShutdownNotice, StartNotice -> emptyList()
+                is ActorJar -> listOf(type.name)
+                ShutdownNotice, StartNotice -> emptyList()
             }
         }
 

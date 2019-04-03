@@ -142,11 +142,11 @@ internal class SafeMessageDeserializerTest {
     @Test
     fun `test actor jar deserialize success`() {
         val jarData = base64(testMessage)
-        val messageString = "Message-ActorJar-${jarData.length}-$jarData\n"
+        val messageString = "Message-ActorJar-${base64("ACTOR")}-${jarData.length}-$jarData\n"
 
         val result = deserializer.readMessageDto(messageString.reader())
 
-        val expected = MessageDto(ActorJar, jarData)
+        val expected = MessageDto(ActorJar(ActorBinType.ACTOR), jarData)
         assertEquals(expected, result)
     }
 
@@ -231,7 +231,7 @@ internal class SafeMessageDeserializerTest {
     @Test
     fun `test incorrect binary parameter size too big deserialize failure`() {
         val binaryParam = "whatever"
-        val messageString = "Message-ActorJar-${binaryParam.length + 1}-$binaryParam\n"
+        val messageString = "Message-ActorJar-${base64("API")}-${binaryParam.length + 1}-$binaryParam\n"
 
         assertThrows<MessageException> {
             deserializer.readMessageDto(messageString.reader())
@@ -241,7 +241,7 @@ internal class SafeMessageDeserializerTest {
     @Test
     fun `test incorrect binary parameter size too small deserialize failure`() {
         val binaryParam = "whatever"
-        val messageString = "Message-ActorJar-${binaryParam.length - 1}-$binaryParam\n"
+        val messageString = "Message-ActorJar-${base64("API")}-${binaryParam.length - 1}-$binaryParam\n"
 
         assertThrows<MessageException> {
             deserializer.readMessageDto(messageString.reader())

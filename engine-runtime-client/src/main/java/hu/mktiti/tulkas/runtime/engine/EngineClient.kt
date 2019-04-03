@@ -3,10 +3,7 @@ package hu.mktiti.tulkas.runtime.engine
 import hu.mktiti.kreator.property.boolProperty
 import hu.mktiti.tulkas.api.log.EngineLoggerFactory
 import hu.mktiti.tulkas.runtime.base.*
-import hu.mktiti.tulkas.runtime.common.InQueue
-import hu.mktiti.tulkas.runtime.common.OutQueue
-import hu.mktiti.tulkas.runtime.common.ProxyCallTimeoutException
-import hu.mktiti.tulkas.runtime.common.logger
+import hu.mktiti.tulkas.runtime.common.*
 
 class EngineClient(
         private val isMatch: Boolean = boolProperty("IS_MATCH")
@@ -27,13 +24,21 @@ class EngineClient(
         val messageHandler: EngineMessageHandler = DefaultEngineMessageHandler(inQueue, outQueue, messageConverter)
         EngineLoggerFactory.setDefaultLogger(MessageHandlerEngineLogger(messageHandler))
 
-        val actorBinary = messageHandler.loadActorBinary()
-        if (actorBinary == null) {
-            log.error("BotActor binary is null")
+        val apiBinary = messageHandler.loadActorBinary(ActorBinType.API)
+        if (apiBinary == null) {
+            log.error("Game api binary is null")
             log.error("Shutting down")
             return
         }
 
+        val actorBinary = messageHandler.loadActorBinary(ActorBinType.ACTOR)
+        if (actorBinary == null) {
+            log.error("Engine actor binary is null")
+            log.error("Shutting down")
+            return
+        }
+
+        binaryClassLoader.loadFromBinary(apiBinary)
         binaryClassLoader.loadFromBinary(actorBinary)
 
         println("Channel created")

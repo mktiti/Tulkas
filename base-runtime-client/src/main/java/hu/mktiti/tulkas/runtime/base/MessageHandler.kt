@@ -2,12 +2,12 @@ package hu.mktiti.tulkas.runtime.base
 
 import hu.mktiti.kreator.annotation.InjectableType
 import hu.mktiti.tulkas.api.log.LogTarget
-import java.lang.Exception
+import hu.mktiti.tulkas.runtime.common.ActorBinType
 
 @InjectableType
 interface MessageHandler {
 
-    fun loadActorBinary(): ByteArray?
+    fun loadActorBinary(type: ActorBinType): ByteArray?
 
     fun log(target: LogTarget, message: String)
 

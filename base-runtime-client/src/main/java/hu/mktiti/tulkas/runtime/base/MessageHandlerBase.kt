@@ -2,7 +2,6 @@ package hu.mktiti.tulkas.runtime.base
 
 import hu.mktiti.tulkas.api.log.LogTarget
 import hu.mktiti.tulkas.runtime.common.*
-import java.lang.Exception
 import java.util.*
 
 abstract class MessageHandlerBase(
@@ -17,18 +16,18 @@ abstract class MessageHandlerBase(
         outQueue.addMessage(messageConverter.toDto(message))
     }
 
-    override fun loadActorBinary(): ByteArray? {
-        sendMessage(Message(ActorJar))
+    override fun loadActorBinary(type: ActorBinType): ByteArray? {
+        sendMessage(Message(ActorJar(type)))
         return with(inQueue.getMessage()) {
             when {
-                header !is ActorJar -> {
-                    log.error("BotActor Jar Expected, received {}", header::class.simpleName)
-                    sendMessage(Message(ErrorResult("BotActor Jar Expected, received ${header::class.simpleName}")))
+                (header as? ActorJar)?.type != type -> {
+                    log.error("Actor jar for $type expected, received {}", header::class.simpleName)
+                    sendMessage(Message(ErrorResult("Actor jar expected, received ${header::class.simpleName}")))
                     null
                 }
                 dataMessage == null -> {
-                    log.error("BotActor Jar contained no actordata part")
-                    sendMessage(Message(ErrorResult("BotActor Jar contained no actordata part")))
+                    log.error("Actor jar contained no actordata part")
+                    sendMessage(Message(ErrorResult("Actor jar contained no actordata part")))
                     null
                 }
                 else -> Base64.getDecoder().decode(dataMessage)

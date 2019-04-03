@@ -30,8 +30,6 @@ class ClientRuntime(
 
         val binaryClassLoader = BinaryClassLoader()
 
-        //System.setSecurityManager(ClientSecurityManager())
-
         langThread(name = "$threadPrefix Client Receiver", start = true) {
             Receiver(channel, inQueue).run()
             System.exit(0)

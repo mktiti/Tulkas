@@ -128,11 +128,11 @@ internal class SafeMessageSerializerTest {
 
     @Test
     fun `test actor jar serialization success`() {
-        val message = MessageDto(ActorJar, testMessage)
+        val message = MessageDto(ActorJar(ActorBinType.API), testMessage)
 
         val result = serializer.serializeMessageDto(message)
 
-        assertEquals("Message-ActorJar-${testMessage.length}-$testMessage", result)
+        assertEquals("Message-ActorJar-${base64("API")}-${testMessage.length}-$testMessage", result)
     }
 
     @Test

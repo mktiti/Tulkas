@@ -1,14 +1,20 @@
 package hu.mktiti.tulkas.runtime.handler.control
 
+import hu.mktiti.tulkas.api.GameResult
+import hu.mktiti.tulkas.api.challenge.ChallengeResult
+import hu.mktiti.tulkas.api.match.MatchResult
+import hu.mktiti.tulkas.runtime.common.ActorBinType
 import hu.mktiti.tulkas.runtime.common.logger
 import hu.mktiti.tulkas.runtime.handler.actordata.ActorArityException
 import hu.mktiti.tulkas.runtime.handler.actordata.ActorsData
 import hu.mktiti.tulkas.runtime.handler.actordata.unified
+import java.util.concurrent.Callable
 
 class ControlHandler(
+        private val apiBinary: ByteArray,
         private val handlers: ActorsData<EngineControlHandle, BotControlHandle>,
         private val controlQueue: ControlQueue
-) : Runnable {
+) : Callable<GameResult?> {
 
     private val log by logger()
 
@@ -16,7 +22,7 @@ class ControlHandler(
 
     private var controlState: ControlState = ConnectionAwait(handlers.actors)
 
-    override fun run() {
+    override fun call(): GameResult? {
         try {
             while (!controlState.final) {
                 val controlMessage = controlQueue.getMessage()
@@ -34,6 +40,14 @@ class ControlHandler(
         controlState.let {
             if (it is Crash) {
                 log.error("Game crashed: {}", it.message)
+            }
+        }
+
+        return controlState.let {
+            when (it) {
+                is MatchEnded -> it.result
+                is FatalError -> it.result
+                else -> null
             }
         }
     }
@@ -60,13 +74,16 @@ class ControlHandler(
     private fun handle(actor: Actor): ControlClientHandle = unifiedHandlers[actor]
 
     private fun actorBinaryRequest(request: ActorBinaryRequest) = atState { state ->
-        if (state !is ConnectionAwait || !state.connect(request.actor)) {
-            controlState = Crash("Not waiting for ${request.actor} connection")
+        if (state !is ConnectionAwait || !state.connect(request.actor, request.type)) {
+            controlState = Crash("Not waiting for ${request.actor} - ${request.type} connection")
 
         } else {
             request.actor.let {
                 handle(it).apply {
-                    messageHandler.sendActorBinary(binary)
+                    when (request.type) {
+                        ActorBinType.API -> messageHandler.sendActorBinary(ActorBinType.API, apiBinary)
+                        ActorBinType.ACTOR -> messageHandler.sendActorBinary(ActorBinType.ACTOR, binary)
+                    }
                 }
             }
 
@@ -131,7 +148,14 @@ class ControlHandler(
     }
 
     private fun error(error: ErrorResultMessage) = modState {
-        FatalError("Error from ${error.actor}: ${error.errorData}")
+        val result = when {
+            error.actor == Actor.ENGINE -> null
+            !unifiedHandlers.isMatch -> ChallengeResult.crash()
+            error.actor == Actor.BOT_A -> MatchResult.error(MatchResult.BotActor.BOT_A)
+            else -> MatchResult.error(MatchResult.BotActor.BOT_B)
+        }
+
+        FatalError(result, "Error from ${error.actor}: ${error.errorData}")
     }
 
     private fun sendGameOverToAll() {

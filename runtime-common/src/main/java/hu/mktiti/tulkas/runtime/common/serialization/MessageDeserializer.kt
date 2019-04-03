@@ -7,6 +7,7 @@ import hu.mktiti.tulkas.api.log.LogTarget
 import hu.mktiti.tulkas.runtime.common.*
 import java.io.IOException
 import java.io.Reader
+import java.net.SocketException
 import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.collections.ArrayList
@@ -136,7 +137,9 @@ class SafeMessageDeserializer(
             HeaderTypeData("CallResult", 1) { params -> CallResult(params[0]) },
             HeaderTypeData("BotTimeout", 0) { _ -> BotTimeout },
             HeaderTypeData("ErrorResult", 1) { params -> ErrorResult(params[0]) },
-            HeaderTypeData("ActorJar", 0) { ActorJar },
+            HeaderTypeData("ActorJar", 1) { params ->
+                safeValueOf<ActorBinType>(params[0])?.let(::ActorJar)
+            },
             HeaderTypeData("ShutdownNotice", 0) { ShutdownNotice },
             HeaderTypeData("StartNotice", 0) { StartNotice }
     )
@@ -171,6 +174,9 @@ class SafeMessageDeserializer(
         } catch (_: IndexOutOfBoundsException) {
             throw MessageException("Header parameter missing for $headerType")
         }
+    } catch (se: SocketException) {
+        log.error("SocketException while parsing message - possibly socket closed")
+        throw MessageException("SocketException while trying to parse message - possibly socket closed")
     } catch (ioe: IOException) {
         log.error("IOException while parsing message", ioe)
         throw MessageException("IOException while trying to parse message")

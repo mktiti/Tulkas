@@ -1,9 +1,6 @@
 package hu.mktiti.tulkas.runtime.handler.message
 
-import hu.mktiti.tulkas.runtime.common.ActorJar
-import hu.mktiti.tulkas.runtime.common.Channel
-import hu.mktiti.tulkas.runtime.common.MessageDto
-import hu.mktiti.tulkas.runtime.common.ShutdownNotice
+import hu.mktiti.tulkas.runtime.common.*
 import java.util.*
 
 open class AbstractClientMessageHandler(
@@ -12,8 +9,8 @@ open class AbstractClientMessageHandler(
 
     protected fun sendMessage(message: MessageDto): Boolean = channel.sendMessage(message)
 
-    override fun sendActorBinary(actor: ByteArray): Boolean
-            = sendMessage(MessageDto(ActorJar, Base64.getEncoder().encodeToString(actor)))
+    override fun sendActorBinary(type: ActorBinType, actor: ByteArray): Boolean
+            = sendMessage(MessageDto(ActorJar(type), Base64.getEncoder().encodeToString(actor)))
 
     override fun sendGameOverNotice() {
         sendMessage(MessageDto(ShutdownNotice))

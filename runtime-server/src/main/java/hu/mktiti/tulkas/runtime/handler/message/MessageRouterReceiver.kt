@@ -24,7 +24,7 @@ class MessageRouterReceiver(
             is MatchResultH -> controlQueue.addMessage(MatchResultMessage(actor, MatchResult(header.resultType)))
             is BotTimeout  -> controlQueue.addMessage(BotTimeoutMessage(actor))
             is ErrorResult -> controlQueue.addMessage(ErrorResultMessage(actor, messageDto.dataMessage))
-            is ActorJar    -> controlQueue.addMessage(ActorBinaryRequest(actor))
+            is ActorJar    -> controlQueue.addMessage(ActorBinaryRequest(actor, header.type))
 
             is ShutdownNotice, is StartNotice -> return true
         }

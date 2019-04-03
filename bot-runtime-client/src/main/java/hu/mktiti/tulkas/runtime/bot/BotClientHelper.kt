@@ -23,7 +23,7 @@ class DefaultBotClientHelper(
     override fun createProxyForBot(botInterface: Class<out BotInterface>, bot: BotInterface): BotProxy {
         val methods = botInterface.declaredMethods
                 .filter { Modifier.isPublic(it.modifiers) }
-                .map { it.name to { args: List<Any?> -> it.invoke(bot, *(args.toTypedArray())) } }
+                .map { it.toGenericString() to { args: List<Any?> -> it.invoke(bot, *(args.toTypedArray())) } }
                 .toMap()
         return MappedBotProxy(methods)
     }

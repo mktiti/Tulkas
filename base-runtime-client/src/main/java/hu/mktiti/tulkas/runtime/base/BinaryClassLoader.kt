@@ -4,6 +4,7 @@ import hu.mktiti.kreator.annotation.Injectable
 import hu.mktiti.kreator.annotation.InjectableArity
 import hu.mktiti.kreator.property.intProperty
 import hu.mktiti.kreator.property.propertyOpt
+import hu.mktiti.tulkas.runtime.common.forever
 import hu.mktiti.tulkas.runtime.common.logger
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -76,11 +77,21 @@ class BinaryClassLoader(
             log.info("Entry size is known: {} bytes", entry.size)
             val size = entry.size.toInt()
             val bytes = ByteArray(size)
-            if (stream.read(bytes) != size) {
-                log.info("Entry size is different fom read size")
-                return null
+
+            var pos = 0
+            forever {
+                val readSize = stream.read(bytes, pos, size - pos)
+
+                if (readSize == -1) {
+                    log.info("Cannot read more from entry (size: {}, read: {})", size, pos)
+                    return null
+                }
+
+                pos += readSize
+                if (pos == size) {
+                    return bytes
+                }
             }
-            return bytes
         }
 
         ByteArrayOutputStream().use { bytes ->

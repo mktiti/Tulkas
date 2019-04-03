@@ -27,7 +27,7 @@ class DefaultEngineClientHelper(
 
     override fun <T : BotInterface> createProxyForBot(botClass: Class<T>, invokeLogic: (String, List<Any?>) -> Any?): T {
         return botClass.cast(Proxy.newProxyInstance(binaryClassLoader, arrayOf(botClass)) { _, method, arguments ->
-            invokeLogic(method.name, arguments.asList())
+            invokeLogic(method.toGenericString(), arguments.asList())
         })
     }
 

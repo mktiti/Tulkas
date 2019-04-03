@@ -8,6 +8,10 @@ enum class CallTarget {
     BOT_A, BOT_B
 }
 
+enum class ActorBinType {
+    API, ACTOR
+}
+
 data class Message(val header: Header, val data: Any? = null)
 
 data class MessageDto(val header: Header, val dataMessage: String? = null)
@@ -29,7 +33,7 @@ object BotTimeout : Header()
 
 data class ErrorResult(val message: String) : Header()
 
-object ActorJar : Header()
+data class ActorJar(val type: ActorBinType) : Header()
 
 object ShutdownNotice : Header()
 

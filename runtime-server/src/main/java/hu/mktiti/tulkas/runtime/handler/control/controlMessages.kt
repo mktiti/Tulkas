@@ -2,6 +2,7 @@ package hu.mktiti.tulkas.runtime.handler.control
 
 import hu.mktiti.tulkas.api.challenge.ChallengeResult
 import hu.mktiti.tulkas.api.match.MatchResult
+import hu.mktiti.tulkas.runtime.common.ActorBinType
 import hu.mktiti.tulkas.runtime.common.CallResult
 import hu.mktiti.tulkas.runtime.common.CallTarget
 import hu.mktiti.tulkas.runtime.common.ProxyCall
@@ -17,7 +18,7 @@ fun callTargetToActor(target: CallTarget): Actor = when (target) {
 
 sealed class ControlMessage(val actor: Actor)
 
-class ActorBinaryRequest(actor: Actor) : ControlMessage(actor)
+class ActorBinaryRequest(actor: Actor, val type: ActorBinType) : ControlMessage(actor)
 
 class ProxyCallMessage(actor: Actor, val proxyCall: ProxyCall, val callData: String?) : ControlMessage(actor)
 
