@@ -20,7 +20,7 @@ fun main(args: Array<String>) {
         initOrder = 0
         setInitParameter(
                 "jersey.config.server.provider.packages",
-                "hu.mktiti.tulkas.server.data.handler, org.codehaus.jackson.jaxrs, org.glassfish.jersey.examples.multipart"
+                "hu.mktiti.tulkas.server.data.handler, hu.mktiti.tulkas.server.data.security, org.codehaus.jackson.jaxrs, org.glassfish.jersey.examples.multipart"
         )
         setInitParameter(
                 "jersey.config.server.provider.classnames",
