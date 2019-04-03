@@ -21,7 +21,7 @@ public abstract class ChallengeGameEngine<T> implements GameEngine<T> {
         logger = engineLogger == null ? new ConsoleEngineLogger() : engineLogger;
     }
 
-    abstract ChallengeResult playChallenge();
+    public abstract ChallengeResult playChallenge();
 
     @Override
     public final GameResult playGame() {

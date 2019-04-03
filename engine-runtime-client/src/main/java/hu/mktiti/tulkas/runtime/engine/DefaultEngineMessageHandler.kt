@@ -32,7 +32,7 @@ class DefaultEngineMessageHandler(
 
     override fun sendResult(result: GameResult) {
         val header = when (result) {
-            is hu.mktiti.tulkas.api.challenge.ChallengeResult -> ChallengeResultH(result.points, result.points)
+            is hu.mktiti.tulkas.api.challenge.ChallengeResult -> ChallengeResultH(result.points, result.maxPoints)
             is hu.mktiti.tulkas.api.match.MatchResult -> MatchResultH(result.type)
             else -> throw IllegalArgumentException("Result type should be either MatchResultH or ChallengeResultH")
         }

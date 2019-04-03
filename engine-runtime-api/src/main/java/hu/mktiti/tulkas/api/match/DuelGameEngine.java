@@ -38,19 +38,43 @@ public abstract class DuelGameEngine<T> implements GameEngine<T> {
         return isA ? botA : botB;
     }
 
-    protected abstract TurnResult playTurn();
+    protected TurnResult initBot(final T bot, final boolean isBotA) {
+        return TurnResult.CONTINUE;
+    }
 
-    private void nextTurn() {
+    protected abstract TurnResult playTurn(final T currentBot, final boolean isBotA);
+
+    private final void nextTurn() {
         isCurrentlyBotA = !isCurrentlyBotA;
         currentBot = bot(isCurrentlyBotA);
     }
 
     public final GameResult playGame() {
         try {
+            for (int i = 0; i < 2; i++) {
+                try {
+                    switch (initBot(currentBot, isCurrentlyBotA)) {
+                        case WIN:
+                            return wins();
+                        case DRAW:
+                            return draws();
+                        case LOSE:
+                            return loses();
+                        case ERROR:
+                            return error();
+                        default:
+                            break;
+                    }
+                } catch (final BotTimeoutException bte) {
+                    return error();
+                }
+                nextTurn();
+            }
+
             while (true) {
                 final TurnResult turnResult;
                 try {
-                    turnResult = playTurn();
+                    turnResult = playTurn(getCurrentBot(), isCurrentlyBotA);
                 } catch (final BotTimeoutException bte) {
                     return error();
                 }
@@ -109,22 +133,22 @@ public abstract class DuelGameEngine<T> implements GameEngine<T> {
     }
 
     protected final MatchResult error() {
-        return MatchResult.error(botToActor(!isCurrentlyBotA()));
+        return MatchResult.error(botToActor(isCurrentlyBotA()));
     }
 
-    protected BotActor currentBotActor() {
+    protected final BotActor currentBotActor() {
         return botToActor(isCurrentlyBotA());
     }
 
-    protected BotActor botToActor(final boolean isBotA) {
+    protected final BotActor botToActor(final boolean isBotA) {
         return isBotA ? BotActor.BOT_A : BotActor.BOT_B;
     }
 
-    protected boolean isCurrentlyBotA() {
+    protected final boolean isCurrentlyBotA() {
         return isCurrentlyBotA;
     }
 
-    protected T getCurrentBot() {
+    protected final T getCurrentBot() {
         return currentBot;
     }
 }
