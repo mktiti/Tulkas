@@ -6,10 +6,11 @@ import org.codehaus.jackson.annotate.JsonProperty
 data class SimpleBotDto(
         val name: String,
         val ownerUsername: String,
-        val game: String
+        val game: String,
+        val rank: Int?
 )
 
-fun Bot.toSimpleDto(ownerName: String, gameName: String) = SimpleBotDto(name, ownerName, gameName)
+fun Bot.toSimpleDto(ownerName: String, gameName: String) = SimpleBotDto(name, ownerName, gameName, rank)
 
 fun List<Pair<Bot, String>>.toSimpleDtos(ownerName: String) = map { it.first.toSimpleDto(ownerName, it.second) }
 
@@ -17,6 +18,7 @@ data class DetailedBotData(
         val name: String,
         val ownerUsername: String,
         val game: String,
+        val rank: Int?,
         val played: List<SimpleMatchDto>
 )
 

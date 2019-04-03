@@ -5,7 +5,8 @@ data class Bot(
         val ownerId: Long,
         val gameId: Long,
         val name: String,
-        val jarId: Long
+        val jarId: Long,
+        val rank: Int?
 ) : Entity {
 
     override fun equals(other: Any?) = other is Bot && other.id == id

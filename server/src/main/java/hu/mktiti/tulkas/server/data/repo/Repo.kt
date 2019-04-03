@@ -140,16 +140,20 @@ abstract class DbRepo<T : Entity>(
         }
     }
 
-    override fun saveAll(entities: Iterable<T>): List<Long> = transaction {
-        prepare(insertCommand).useWith {
-            for (entity in entities) {
-                setAllParams(insertMap(entity))
-                addBatch()
+    override fun saveAll(entities: Iterable<T>): List<Long> =
+        if (entities.firstOrNull() == null) {
+            emptyList()
+        } else {
+            transaction {
+                prepare(insertCommand).useWith {
+                    for (entity in entities) {
+                        setAllParams(insertMap(entity))
+                        addBatch()
+                    }
+                    executeBatch()
+                    generatedKeys.mapAll { getLong(1) }
+                }
             }
-            executeBatch()
-            generatedKeys.mapAll { getLong(1) }
         }
-
-    }
 
 }

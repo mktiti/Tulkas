@@ -47,7 +47,8 @@ class GameHandler(
                         SimpleBotDto(
                                 name = it.first.name,
                                 game = game.name,
-                                ownerUsername = it.second
+                                ownerUsername = it.second,
+                                rank = it.first.rank
                         )
                     }
             )

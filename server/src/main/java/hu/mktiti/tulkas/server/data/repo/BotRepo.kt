@@ -7,6 +7,7 @@ import hu.mktiti.kreator.api.inject
 import hu.mktiti.tulkas.server.data.dao.Bot
 import hu.mktiti.tulkas.server.data.dao.ConnectionSource
 import hu.mktiti.tulkas.server.data.dao.JarData
+import hu.mktiti.tulkas.server.data.useWith
 
 @InjectableType
 interface BotRepo : Repo<Bot> {
@@ -21,18 +22,24 @@ interface BotRepo : Repo<Bot> {
 
     fun botByUserAndName(username: String, name: String): Bot?
 
+    fun updateRanking(rankings: Collection<GameBotRank>)
+
+    fun unrankedBots(): List<Bot>
+
+    fun olderOpponents(bot: Bot): List<Bot>
+
 }
 
 @Injectable(arity = InjectableArity.SINGLETON, tags = ["hsqldb"], default = true)
 class BotDbRepo(
         private val jarDataRepo: JarDataRepo = inject(),
         connectionSource: ConnectionSource = inject()
-) : DbRepo<Bot>(tableName, listOf("gameId", "ownerId", "name", "jarId"), connectionSource), BotRepo {
+) : DbRepo<Bot>(tableName, listOf("gameId", "ownerId", "name", "jarId", "rank"), connectionSource), BotRepo {
 
     companion object {
         const val tableName = "Bot"
 
-        val columns = listOf("id", "gameId", "ownerId", "name", "jarId")
+        val columns = listOf("id", "gameId", "ownerId", "name", "jarId", "rank")
 
         fun prefixedCols(prefix: String) = columns.joinToString(separator = ", ") { "$prefix.$it as ${prefix}_$it" }
 
@@ -42,7 +49,8 @@ class BotDbRepo(
                 gameId = long("gameId"),
                 ownerId = long("ownerId"),
                 name = string("name"),
-                jarId = long("jarId")
+                jarId = long("jarId"),
+                rank = intOpt("rank")
             )
         }
 
@@ -70,12 +78,18 @@ class BotDbRepo(
             where o.name = ?
                 and b.name = ?
         """
+
+        private const val updateRankingQuery = """
+            update $tableName
+            set rank = ?
+            where id = ?
+        """
     }
 
     override fun PrefixedResultSet.mapRow() = staticMapRow(this)
 
     override fun insertMap(entity: Bot) = with(entity) {
-        listOf(gameId, ownerId, name, jarId)
+        listOf(gameId, ownerId, name, jarId, rank)
     }
 
     override fun createBot(
@@ -88,7 +102,8 @@ class BotDbRepo(
             ownerId = ownerId,
             gameId = gameId,
             name = name,
-            jarId = jarDataRepo.save(JarData(data = jar))
+            jarId = jarDataRepo.save(JarData(data = jar)),
+            rank = null
         ))
     }
 
@@ -107,5 +122,23 @@ class BotDbRepo(
 
     override fun botByUserAndName(username: String, name: String): Bot? =
             selectSingle(selectByOwnerAndName, username, name)
+
+    override fun updateRanking(rankings: Collection<GameBotRank>) {
+        transaction {
+            prepare(updateRankingQuery).useWith {
+                for (ranking in rankings) {
+                    setInt(1, ranking.rank)
+                    setLong(2, ranking.botId)
+                    addBatch()
+                }
+                executeBatch()
+            }
+        }
+    }
+
+    override fun unrankedBots(): List<Bot> = selectMulti("select * from $tableName where rank is null order by id")
+
+    override fun olderOpponents(bot: Bot): List<Bot> =
+            selectMulti("select * from $tableName where id < ? and gameId = ?", bot.id, bot.gameId)
 
 }

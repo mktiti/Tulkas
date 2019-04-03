@@ -5,18 +5,22 @@
                 <BotCard :bot="detailed" />
             </tr>
             <tr>
-                <div id="match-label">Matches</div>
+                <h2>Matches</h2>
             </tr>
             <tr v-for="m in detailed.played" :class="{ selected: (selectedMatch === m.id) }" id="match-log" :key="m.id" v-on:click="selectMatch(m.id)">
                 <MatchCard :match="m" />
             </tr>
         </table>
         <div id="log-panel">
-            Log Entries
-            <p :v-if="logEntries.size > 0" v-for="(log, index) in logEntries" :key="index">
-                {{ log.sender }} -> {{ log.target }}
-                {{ log.message }}
-            </p>
+            <h2>Log Entries</h2>
+            <pre :v-if="logEntries.size > 0" v-for="(log, index) in logEntries" :key="index"
+               :class="{ fromEngine: (log.sender === 'ENGINE'), fromSelf: (log.sender === 'BOT_A' || log.sender === 'BOT_B'), fromTulkas: (log.sender === 'TULKAS') }">[{{ log.sender }}] {{ prefixEntry(log.message) }}</pre>
+            <i v-if="selectedMatch !== null && logEntries.size === 0">
+                Match contains no log entries
+            </i>
+            <i v-if="selectedMatch === null">
+                Select match to load log messages
+            </i>
         </div>
     </div>
 </template>
@@ -70,6 +74,15 @@
                 } else {
                     this.selectedMatch = matchId;
                 }
+            },
+            prefixEntry: function(entry) {
+                let tmp = entry.split('\n'), res = [];
+
+                for (const frag of tmp) {
+                    res.push(`\t${frag}`);
+                }
+
+                return res.join('\n');
             }
         }
     }
@@ -81,15 +94,37 @@
         display: inline-block;
     }
 
-    #match-label {
-        font-size: x-large;
-    }
-
     #match-log>#card {
         margin-top: 0;
     }
 
     #match-log.selected {
-        background: yellow;
+        background: #d8d8d8;
+    }
+
+    #log-panel {
+        margin-top: 20px;
+        vertical-align: top;
+    }
+
+    #log-panel>h2 {
+        margin-bottom: 20px;
+    }
+
+    pre {
+        font-family: monospace;
+    }
+
+    #log-panel>pre {
+        text-align: left;
+        line-height: 1.4;
+    }
+
+    #log-panel>pre.fromEngine {
+        color: dodgerblue;
+    }
+
+    #log-panel>pre.fromTulkas {
+        color: orange;
     }
 </style>

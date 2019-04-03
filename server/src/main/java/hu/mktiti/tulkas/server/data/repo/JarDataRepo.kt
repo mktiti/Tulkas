@@ -43,7 +43,7 @@ class JarDataDbRepo(
         private const val gameEngineSelectQuery = """
             select d.*
             from $tableName d
-            join ${GameDbRepo.tableName} g on g.engineJarApi = d.id
+            join ${GameDbRepo.tableName} g on g.engineJarId = d.id
             where g.id = ?
         """
     }

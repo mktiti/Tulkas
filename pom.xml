@@ -20,7 +20,7 @@
         <tulkas.game-api.version>1.0.0-SNAPSHOT</tulkas.game-api.version>
         <tulkas.runtime.version>1.0.0-SNAPSHOT</tulkas.runtime.version>
 
-        <kreator.annotation.version>0.1</kreator.annotation.version>
+        <kreator.annotation.version>0.2.0-SNAPSHOT</kreator.annotation.version>
         <kreator.api.version>0.2.0-SNAPSHOT</kreator.api.version>
         <kreator.core.version>0.2.0-SNAPSHOT</kreator.core.version>
         <kreator.property.version>0.2.0-SNAPSHOT</kreator.property.version>
@@ -60,6 +60,12 @@
             <dependency>
                 <groupId>hu.mktiti.tulkas</groupId>
                 <artifactId>runtime-common</artifactId>
+                <version>${tulkas.runtime.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>hu.mktiti.tulkas</groupId>
+                <artifactId>runtime-server</artifactId>
                 <version>${tulkas.runtime.version}</version>
             </dependency>
 

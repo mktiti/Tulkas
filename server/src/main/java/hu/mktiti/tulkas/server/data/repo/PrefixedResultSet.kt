@@ -24,6 +24,10 @@ class PrefixedResultSet(
 
     fun int(column: String): Int = intOpt(column)!!
 
+    fun doubleOpt(column: String): Double? = resultSet.getDouble(column.prefixed())
+
+    fun double(column: String): Double = doubleOpt(column)!!
+
     fun stringOpt(column: String): String? = resultSet.getString(column.prefixed())
 
     fun string(column: String): String = stringOpt(column)!!

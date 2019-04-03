@@ -13,6 +13,7 @@ internal class ActorLogDbRepoTest {
     @BeforeEach
     fun resetDb() {
         DbUtil.recreateDb()
+        repo.deleteAll()
     }
 
     @Test
@@ -34,7 +35,7 @@ internal class ActorLogDbRepoTest {
 
     @Test
     fun `test save log`() {
-        val senders = listOf("TULKAS", "ENGINE", "BOT_A")
+        val senders = listOf("RUNTIME", "ENGINE", "SELF")
         val messages = (1..10).map {
             senders[it % senders.size] to "message $it"
         }

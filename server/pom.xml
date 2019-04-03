@@ -25,6 +25,11 @@
         </dependency>
 
         <dependency>
+            <groupId>hu.mktiti.tulkas</groupId>
+            <artifactId>runtime-server</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
             <version>2.4.1</version>

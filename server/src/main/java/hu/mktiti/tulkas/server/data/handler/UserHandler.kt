@@ -6,6 +6,7 @@ import hu.mktiti.tulkas.server.data.repo.BotRepo
 import hu.mktiti.tulkas.server.data.repo.GameLogRepo
 import hu.mktiti.tulkas.server.data.repo.GameRepo
 import hu.mktiti.tulkas.server.data.repo.UserRepo
+import hu.mktiti.tulkas.server.data.service.GameManager
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
@@ -15,7 +16,8 @@ class UserHandler(
         private val userRepo: UserRepo = inject(),
         private val gameRepo: GameRepo = inject(),
         private val botRepo: BotRepo = inject(),
-        private val gameLogRepo: GameLogRepo = inject()
+        private val gameLogRepo: GameLogRepo = inject(),
+        private val gameManager: GameManager = inject()
 ) {
 
     @GET
@@ -72,7 +74,9 @@ class UserHandler(
                     gameId  = game.id,
                     name    = botData.name,
                     jar     = fromBase64(botData.jarString)
-            )
+            )?.apply {
+                gameManager.onNewBot(this)
+            }
         }
     }
 
@@ -99,7 +103,8 @@ class UserHandler(
                     name = bot.name,
                     ownerUsername = username,
                     game = game.name,
-                    played = played
+                    played = played,
+                    rank = bot.rank
             )
         }
     }

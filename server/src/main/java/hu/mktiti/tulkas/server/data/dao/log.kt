@@ -8,7 +8,9 @@ data class GameLog(
         val botAId: Long,
         val botBId: Long?,
         val time: LocalDateTime,
-        val result: String
+        val result: String,
+        val points: Int?,
+        val maxPoints: Int?
 ) : Entity {
 
     override fun equals(other: Any?) = other is GameLog && other.id == id

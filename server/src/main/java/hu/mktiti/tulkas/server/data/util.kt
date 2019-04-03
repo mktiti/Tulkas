@@ -16,3 +16,5 @@ fun String.hexBytes(): ByteArray = toCharArray().toList().chunked(2) { values ->
 }.toByteArray()
 
 fun <T : AutoCloseable, R> T.useWith(code: T.() -> R): R = use { with(this) { code() } }
+
+inline fun forever(block: () -> Unit): Nothing { while (true) { block() } }
