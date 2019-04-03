@@ -3,7 +3,7 @@ package hu.mktiti.tulkas.runtime.common
 import ch.qos.logback.classic.LoggerContext
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.Appender
-import hu.mktiti.kreator.property.boolProperty
+import hu.mktiti.kreator.property.boolPropertyOpt
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.helpers.NOPLogger
@@ -12,7 +12,7 @@ import kotlin.reflect.full.companionObject
 
 object UnifiedLogFactory {
 
-    private val logCreator: (String) -> Logger = if (boolProperty("DISABLE_LOG", false)) {
+    private val logCreator: (String) -> Logger = if (boolPropertyOpt("DISABLE_LOG") != false) {
         { NOPLogger.NOP_LOGGER }
     } else {
         { name -> getContext().getLogger(name) }
