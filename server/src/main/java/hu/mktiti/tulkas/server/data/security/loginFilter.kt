@@ -11,6 +11,7 @@ import javax.ws.rs.container.ContainerRequestFilter
 import javax.ws.rs.core.HttpHeaders
 import javax.ws.rs.core.HttpHeaders.WWW_AUTHENTICATE
 import javax.ws.rs.core.Response.Status.UNAUTHORIZED
+import javax.ws.rs.ext.Provider
 
 @NameBinding
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
@@ -18,8 +19,9 @@ import javax.ws.rs.core.Response.Status.UNAUTHORIZED
 annotation class LoginRequired
 
 @LoginRequired
+@Provider
 @Priority(Priorities.AUTHENTICATION)
-public class LoginFilter(
+class LoginFilter(
         private val tokenAuthenticator: JwtAuthenticator = inject()
 ) : ContainerRequestFilter {
 
@@ -49,7 +51,7 @@ public class LoginFilter(
     }
 
     private fun ContainerRequestContext.abortUnauthorized() {
-        abortWith(response(UNAUTHORIZED, header = WWW_AUTHENTICATE to "realm=\"$SCHEME_STRING\""))
+        abortWith(response(UNAUTHORIZED, header = WWW_AUTHENTICATE to SCHEME_STRING))
     }
 
 }
