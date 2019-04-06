@@ -8,11 +8,14 @@ import hu.mktiti.tulkas.server.data.repo.GameRepo
 import hu.mktiti.tulkas.server.data.repo.UserRepo
 import hu.mktiti.tulkas.server.data.security.LoginRequired
 import hu.mktiti.tulkas.server.data.service.GameManager
+import javax.inject.Singleton
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
 @Path("/users")
+@Singleton
+@Produces(value = [MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON])
 class UserHandler(
         private val userRepo: UserRepo = inject(),
         private val gameRepo: GameRepo = inject(),
@@ -22,23 +25,20 @@ class UserHandler(
 ) {
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     fun listAll(@QueryParam("s") search: String?): List<SimpleUserDto> {
         val list = if (search == null) userRepo.listAll() else userRepo.searchNameContaining(search)
         return list.map { SimpleUserDto(it.name) }
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
     fun createUser(
             userData: UserUploadData
     ): Response = pathCreated("/users/${userData.name}") {
         userRepo.createUser(userData.name, userData.password)
     }
 
-    @Path("{username}")
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{username}")
     fun getUser(
             @PathParam("username") username: String
     ): Response = entity {
@@ -50,19 +50,17 @@ class UserHandler(
         )
     }
 
-    @Path("{username}/bots")
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{username}/bots")
     fun getBots(
             @PathParam("username") username: String
     ): List<SimpleBotDto> = botRepo.botsOf(username).toSimpleDtos(username)
 
 
-    @Path("{username}/bots")
     @POST
+    @Path("{username}/bots")
     @LoginRequired(usernameParam = "username")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     fun uploadBot(
             @PathParam("username") username: String,
             botData: BotUploadData
@@ -82,9 +80,8 @@ class UserHandler(
         }
     }
 
-    @Path("{username}/bots/{botName}")
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{username}/bots/{botName}")
     fun getBots(
             @PathParam("username") username: String,
             @PathParam("botName") botName: String
@@ -111,9 +108,8 @@ class UserHandler(
         }
     }
 
-    @Path("{username}/games")
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{username}/games")
     fun getGames(
             @PathParam("username") username: String
     ): Response = entity {
@@ -121,11 +117,10 @@ class UserHandler(
         gameRepo.gamesOf(user.id).toSimpleDtos(username)
     }
 
-    @Path("{username}/games")
     @POST
+    @Path("{username}/games")
     @LoginRequired(usernameParam = "username")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     fun uploadBot(
             @PathParam("username") username: String,
             uploadData: GameUploadData

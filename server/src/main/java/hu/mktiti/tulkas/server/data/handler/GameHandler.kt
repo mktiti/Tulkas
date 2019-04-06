@@ -9,11 +9,14 @@ import hu.mktiti.tulkas.server.data.repo.BotRepo
 import hu.mktiti.tulkas.server.data.repo.GameRepo
 import hu.mktiti.tulkas.server.data.repo.JarDataRepo
 import hu.mktiti.tulkas.server.data.repo.UserRepo
+import javax.inject.Singleton
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
 @Path("/games")
+@Singleton
+@Produces(value = [MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON])
 class GameHandler(
         private val userRepo: UserRepo = inject(),
         private val gameRepo: GameRepo = inject(),
@@ -22,15 +25,13 @@ class GameHandler(
 ) {
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     fun allGames(@QueryParam("s") search: String?): List<SimpleGameDto> {
         val list = if (search == null || search.isBlank()) gameRepo.listWithOwnerName() else gameRepo.searchWithOwnerName(search)
         return list.toSimpleDtos()
     }
 
-    @Path("{gameName}")
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{gameName}")
     fun getGame(
             @PathParam("gameName") gameName: String
     ): Response {
@@ -55,9 +56,8 @@ class GameHandler(
         }
     }
 
-    @Path("{gameName}/api")
     @GET
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Path("{gameName}/api")
     fun downloadApi(
             @PathParam("gameName") gameName: String
     ): Response {
