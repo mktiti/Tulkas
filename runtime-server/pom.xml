@@ -5,13 +5,79 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>hu.mktiti.cirkus</groupId>
-        <artifactId>Cirkus</artifactId>
+        <groupId>hu.mktiti.tulkas</groupId>
+        <artifactId>Tulkas</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>runtime-server</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>${tulkas.runtime.version}</version>
 
-    
+    <dependencies>
+        <dependency>
+            <groupId>hu.mktiti.tulkas</groupId>
+            <artifactId>runtime-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>hu.mktiti</groupId>
+            <artifactId>kreator-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jvmTarget>1.8</jvmTarget>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals> <goal>single</goal> </goals>
+                        <configuration>
+                            <archive>
+                                <manifest />
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <finalName>runtime-server</finalName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

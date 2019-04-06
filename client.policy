@@ -1,0 +1,3 @@
+grant codeBase "file:${trusted.codebase}" {
+    permission java.security.AllPermission "", "";
+};

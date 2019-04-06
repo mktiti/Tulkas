@@ -5,13 +5,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>hu.mktiti.cirkus</groupId>
-        <artifactId>Cirkus</artifactId>
+        <groupId>hu.mktiti.tulkas</groupId>
+        <artifactId>Tulkas</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>game-runtime-api</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>${tulkas.game-api.version}</version>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 
     <build>
         <plugins>
@@ -31,8 +36,7 @@
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
-                            <finalName>cirkus-runtime-api</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
+                            <finalName>tulkas-runtime-api</finalName>
                         </configuration>
                     </execution>
                 </executions>
