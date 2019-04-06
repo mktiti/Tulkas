@@ -9,15 +9,20 @@ import javax.ws.rs.NameBinding
 import javax.ws.rs.Priorities
 import javax.ws.rs.container.ContainerRequestContext
 import javax.ws.rs.container.ContainerRequestFilter
+import javax.ws.rs.container.ResourceInfo
+import javax.ws.rs.core.Context
 import javax.ws.rs.core.HttpHeaders
 import javax.ws.rs.core.HttpHeaders.WWW_AUTHENTICATE
+import javax.ws.rs.core.Response.Status.FORBIDDEN
 import javax.ws.rs.core.Response.Status.UNAUTHORIZED
 import javax.ws.rs.ext.Provider
 
 @NameBinding
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class LoginRequired
+annotation class LoginRequired(
+        val usernameParam: String = ""
+)
 
 @LoginRequired
 @Provider
@@ -33,6 +38,9 @@ class LoginFilter(
 
     private val log by logger()
 
+    @Context
+    lateinit var resourceInfo: ResourceInfo
+
     override fun filter(request: ContainerRequestContext) {
 
         val header = request.getHeaderString(HttpHeaders.AUTHORIZATION)?.trim() ?: ""
@@ -47,6 +55,15 @@ class LoginFilter(
             val tokenData = tokenAuthenticator.verify(token)
             if (tokenData == null || tokenData.username.isBlank()) {
                 request.abortUnauthorized()
+
+            } else {
+                val ownerField = resourceInfo.resourceMethod?.getAnnotation(LoginRequired::class.java)?.usernameParam ?: ""
+                if (ownerField != "") {
+                    // Same owner required
+                    if (tokenData.username != request.uriInfo.pathParameters[ownerField]?.first()) {
+                        request.abortWith(response(FORBIDDEN))
+                    }
+                }
             }
         }
 
