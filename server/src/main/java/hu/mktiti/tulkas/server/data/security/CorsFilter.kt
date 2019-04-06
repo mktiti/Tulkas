@@ -1,4 +1,4 @@
-package hu.mktiti.tulkas.server.data.handler
+package hu.mktiti.tulkas.server.data.security
 
 import javax.ws.rs.container.ContainerRequestContext
 import javax.ws.rs.container.ContainerResponseContext
@@ -13,7 +13,7 @@ class CorsFilter : ContainerResponseFilter {
             add("Access-Control-Allow-Origin", "*")
             add("Access-Control-Allow-Headers", "origin, content-type, accept, authorization")
             add("Access-Control-Allow-Credentials", "true")
-            add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+            add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH")
         }
     }
 

@@ -6,6 +6,7 @@ import hu.mktiti.tulkas.server.data.repo.BotRepo
 import hu.mktiti.tulkas.server.data.repo.GameLogRepo
 import hu.mktiti.tulkas.server.data.repo.GameRepo
 import hu.mktiti.tulkas.server.data.repo.UserRepo
+import hu.mktiti.tulkas.server.data.security.LoginRequired
 import hu.mktiti.tulkas.server.data.service.GameManager
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
@@ -59,6 +60,7 @@ class UserHandler(
 
     @Path("{username}/bots")
     @POST
+    @LoginRequired(usernameParam = "username")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     fun uploadBot(
@@ -121,6 +123,7 @@ class UserHandler(
 
     @Path("{username}/games")
     @POST
+    @LoginRequired(usernameParam = "username")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     fun uploadBot(
