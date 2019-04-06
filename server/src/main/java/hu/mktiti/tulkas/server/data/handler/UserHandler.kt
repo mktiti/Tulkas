@@ -7,11 +7,13 @@ import hu.mktiti.tulkas.server.data.repo.GameLogRepo
 import hu.mktiti.tulkas.server.data.repo.GameRepo
 import hu.mktiti.tulkas.server.data.repo.UserRepo
 import hu.mktiti.tulkas.server.data.service.GameManager
+import javax.inject.Singleton
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
 @Path("/users")
+@Singleton
 class UserHandler(
         private val userRepo: UserRepo = inject(),
         private val gameRepo: GameRepo = inject(),
