@@ -13,13 +13,13 @@ import javax.ws.rs.core.MediaType
 
 @Path("/matches")
 @Singleton
+@Produces(value = [MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON])
 class MatchHandler(
         private val actorLogRepo: ActorLogRepo = inject()
 ) {
 
-    @Path("{matchId}")
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{matchId}")
     fun matchLog(
             @PathParam("matchId") matchId: Long
     ) = entity {
