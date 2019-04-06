@@ -1,5 +1,7 @@
 package hu.mktiti.tulkas.server.data
 
+import javax.ws.rs.core.Response
+
 fun ByteArray.hexString(): String = joinToString(separator = "") {
     (it.toInt() + 128).toString(16).toUpperCase()
 }
@@ -18,3 +20,15 @@ fun String.hexBytes(): ByteArray = toCharArray().toList().chunked(2) { values ->
 fun <T : AutoCloseable, R> T.useWith(code: T.() -> R): R = use { with(this) { code() } }
 
 inline fun forever(block: () -> Unit): Nothing { while (true) { block() } }
+
+fun response(status: Response.Status, headers: Map<String, String> = emptyMap()): Response = Response.status(status).apply {
+    for ((header, value) in headers) {
+        header(header, value)
+    }
+}.build()
+
+fun response(status: Response.Status, header: Pair<String, String>): Response =
+        Response.status(status).header(header.first, header.second).build()
+
+inline fun <reified T : Enum<T>> safeValueOf(name: String?): T? =
+        if (name == null) null else enumValues<T>().find { it.name == name }
