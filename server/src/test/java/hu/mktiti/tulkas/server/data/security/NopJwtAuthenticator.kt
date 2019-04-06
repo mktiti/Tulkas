@@ -9,11 +9,11 @@ import java.time.format.DateTimeParseException
 class NopJwtAuthenticator : JwtAuthenticator {
 
     override fun verify(token: String): JwtTokenData? {
-        val split = token.split(".")
+        val split = token.split("|")
 
         if (split.size != 3) return null
 
-        val username = if (split[0] != "") split[2] else return null
+        val username = if (split[0] != "") split[0] else return null
         val role = safeValueOf<UserRole>(split[1]) ?: return null
         val expiration = try {
             LocalDateTime.parse(split[2])
@@ -25,7 +25,7 @@ class NopJwtAuthenticator : JwtAuthenticator {
     }
 
     override fun encode(username: String, role: UserRole, expiration: LocalDateTime): String? {
-        return "$username.${role.name}.$expiration"
+        return "$username|${role.name}|$expiration"
     }
 
 }

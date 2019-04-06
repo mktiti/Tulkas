@@ -46,7 +46,7 @@ class LoginFilterTest : ExtendedJerseyTest() {
     @Test
     fun `test secured bad auth method fail`() {
         val status = target("/jwt-test/secured-greet").request()
-                        .header(HttpHeaders.AUTHORIZATION, "Basic user.USER.2100-01-01T01:01")
+                        .header(HttpHeaders.AUTHORIZATION, "Basic user|USER|2100-01-01T01:01")
                         .get().status
 
         assertEquals(HttpStatus.UNAUTHORIZED_401, status)
@@ -55,7 +55,7 @@ class LoginFilterTest : ExtendedJerseyTest() {
     @Test
     fun `test secured bad jwt format fail`() {
         val status = target("/jwt-test/secured-greet").request()
-                .header(HttpHeaders.AUTHORIZATION, "Bearer user.2100-01-01T01:01")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer user|2100-01-01T01:01")
                 .get().status
 
         assertEquals(HttpStatus.UNAUTHORIZED_401, status)
@@ -65,7 +65,7 @@ class LoginFilterTest : ExtendedJerseyTest() {
     @Test
     fun `test secured success`() {
         val message = target("/jwt-test/secured-greet").request()
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer user.USER.2100-01-01T01:01")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer user|USER|2100-01-01T01:01")
                         .get(String::class.java)
 
         assertEquals("Hello there! You are authorized!", message)

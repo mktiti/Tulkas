@@ -4,6 +4,7 @@ import hu.mktiti.kreator.api.inject
 import hu.mktiti.tulkas.runtime.common.logger
 import hu.mktiti.tulkas.server.data.response
 import javax.annotation.Priority
+import javax.inject.Singleton
 import javax.ws.rs.NameBinding
 import javax.ws.rs.Priorities
 import javax.ws.rs.container.ContainerRequestContext
@@ -21,6 +22,7 @@ annotation class LoginRequired
 @LoginRequired
 @Provider
 @Priority(Priorities.AUTHENTICATION)
+@Singleton
 class LoginFilter(
         private val tokenAuthenticator: JwtAuthenticator = inject()
 ) : ContainerRequestFilter {
