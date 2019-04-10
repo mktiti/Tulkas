@@ -1,7 +1,7 @@
 package hu.mktiti.tulkas.server.data.dto
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import hu.mktiti.tulkas.server.data.dao.Game
-import org.codehaus.jackson.annotate.JsonProperty
 import javax.xml.bind.annotation.XmlRootElement
 
 @XmlRootElement

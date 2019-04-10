@@ -1,5 +1,7 @@
 package hu.mktiti.tulkas.server.data.dto
 
+import com.fasterxml.jackson.annotation.JsonProperty
+
 data class SimpleUserDto(
         val name: String
 )
@@ -11,6 +13,6 @@ data class DetailedUserDto(
 )
 
 data class UserUploadData(
-        val name: String,
-        val password: String
+        @JsonProperty val name: String,
+        @JsonProperty val password: String
 )
