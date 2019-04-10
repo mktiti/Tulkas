@@ -1,7 +1,7 @@
 package hu.mktiti.tulkas.server.data.dto
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import hu.mktiti.tulkas.server.data.dao.Bot
-import org.codehaus.jackson.annotate.JsonProperty
 
 data class SimpleBotDto(
         val name: String,

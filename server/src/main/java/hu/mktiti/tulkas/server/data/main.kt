@@ -10,10 +10,10 @@ import org.glassfish.jersey.servlet.ServletContainer
 fun main(args: Array<String>) {
     DbUtil.createDb()
 
-    val context = ServletContextHandler(ServletContextHandler.NO_SESSIONS)
-    context.contextPath = "/"
-
     val jettyServer = Server(intProperty("Server.Port", 8000))
+    val context = ServletContextHandler(ServletContextHandler.NO_SESSIONS)
+
+    context.contextPath = "/"
     jettyServer.handler = context
 
     with(context.addServlet(ServletContainer::class.java, "/api/*")) {
@@ -26,15 +26,12 @@ fun main(args: Array<String>) {
                 "jersey.config.server.provider.classnames",
                 "org.glassfish.jersey.jackson.JacksonFeature, org.glassfish.jersey.media.multipart.MultiPartFeature"
         )
+
     }
 
-    try {
-        jettyServer.start()
+    jettyServer.start()
 
-        inject<GameManager>().rankAllUnranked()
+    inject<GameManager>().rankAllUnranked()
 
-        jettyServer.join()
-    } finally {
-        jettyServer.destroy()
-    }
+    jettyServer.join()
 }
