@@ -1,7 +1,7 @@
 create table if not exists User(
     id       bigint identity primary key,
     name     varchar(100) not null unique,
-    password varchar(100) not null
+    password varchar(1000) not null
 );
 
 create table if not exists JarData(
