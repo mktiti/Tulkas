@@ -1,0 +1,10 @@
+target/
+*.iml
+.idea
+/db/
+/log/
+/db.properties
+/db.script
+.attach_pid*
+/conf/tulkas.conf
+/conf/tulkas.unit.conf

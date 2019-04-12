@@ -205,7 +205,7 @@
                     <environmentVariables>
                         <KREATOR_ENV>test.unit</KREATOR_ENV>
                         <KREATOR_PROPS_SOURCE>structured-file</KREATOR_PROPS_SOURCE>
-                        <KREATOR_PROPS_FILE>/home/titi/IdeaProjects/Cirkus/tulkas.unit.conf</KREATOR_PROPS_FILE>
+                        <KREATOR_PROPS_FILE>/home/titi/IdeaProjects/Cirkus/conf/tulkas.unit.conf</KREATOR_PROPS_FILE>
                     </environmentVariables>
                 </configuration>
                 <dependencies>
