@@ -1,4 +1,4 @@
-package hu.mktiti.tulkas.server.data.handler
+package hu.mktiti.tulkas.server.data.util
 
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.test.JerseyTest
