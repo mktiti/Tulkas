@@ -1,7 +1,8 @@
-package hu.mktiti.tulkas.server.data.repo
+package hu.mktiti.tulkas.server.data.repo.inmem
 
 import hu.mktiti.kreator.annotation.TestInjectable
 import hu.mktiti.tulkas.server.data.dao.ActorLog
+import hu.mktiti.tulkas.server.data.repo.ActorLogRepo
 
 @TestInjectable(environment = "unit", tags = ["mem"])
 class ActorLogInMemoryRepo(

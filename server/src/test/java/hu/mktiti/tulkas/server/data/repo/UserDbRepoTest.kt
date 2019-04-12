@@ -5,6 +5,7 @@ import hu.mktiti.tulkas.server.data.dao.User
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 internal class UserDbRepoTest {
 
@@ -40,7 +41,7 @@ internal class UserDbRepoTest {
         val toInsert = User(name = "newuser", passHash = "password")
         repo.save(toInsert)
 
-        val inserted = repo.listAll()[testUsers.size]
+        val inserted = repo.listAll().last()
 
         assert(toInsert contentEq inserted)
     }
@@ -64,9 +65,9 @@ internal class UserDbRepoTest {
     fun `test user create`() {
         val id = repo.createUser("jondoe", "password")
 
-        val inserted = repo.listAll()[testUsers.size]
+        val inserted = repo.listAll().last()
 
-        assert(inserted.id == id && inserted.name == "jondoe" && inserted.passHash == "password")
+        assert(inserted sameAs User(id, "jondoe", "password"))
     }
 
     @Test
@@ -80,40 +81,35 @@ internal class UserDbRepoTest {
     fun `test find by name no result`() {
         val noOne = repo.findByName("noOne")
 
-        assert(noOne == null)
+        assertNull(noOne)
     }
 
     @Test
     fun `test search by name`() {
         val containsA = repo.searchNameContaining("a").sortedBy { it.name }
+        val names = containsA.map(User::name)
 
-        assert(
-            containsA.size == 4 &&
-            containsA[0].name == "alice" &&
-            containsA[1].name == "charlie" &&
-            containsA[2].name == "daniel" &&
-            containsA[3].name == "username"
-        )
+        assertEquals(listOf("alice", "charlie", "daniel", "username"), names)
     }
 
     @Test
     fun `test authenticate success`() {
         val result = repo.authenticate("alice", "alice12345")
 
-        assert(result?.name == "alice")
+        assertEquals("alice", result?.name)
     }
 
     @Test
     fun `test authenticate invalid password`() {
         val result = repo.authenticate("alice", "invalidPassword")
 
-        assert(result == null)
+        assertNull(result)
     }
 
     @Test
     fun `test authenticate non existing`() {
         val result = repo.authenticate("noOne", "asd")
 
-        assert(result == null)
+        assertNull(result)
     }
 }
