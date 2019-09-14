@@ -1,6 +1,6 @@
 package hu.mktiti.tulkas.server.data.security
 
-import hu.mktiti.tulkas.server.data.handler.ExtendedJerseyTest
+import hu.mktiti.tulkas.server.data.util.ExtendedJerseyTest
 import hu.mktiti.tulkas.server.data.util.fetchTest
 import org.eclipse.jetty.http.HttpStatus
 import org.junit.jupiter.api.Test

@@ -39,7 +39,7 @@ class BotDbRepo(
     companion object {
         const val tableName = "Bot"
 
-        val columns = listOf("id", "gameId", "ownerId", "name", "jarId", "rank")
+        private val columns = listOf("id", "gameId", "ownerId", "name", "jarId", "rank")
 
         fun prefixedCols(prefix: String) = columns.joinToString(separator = ", ") { "$prefix.$it as ${prefix}_$it" }
 

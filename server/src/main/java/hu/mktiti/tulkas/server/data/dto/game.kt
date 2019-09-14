@@ -2,10 +2,8 @@ package hu.mktiti.tulkas.server.data.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import hu.mktiti.tulkas.server.data.dao.Game
-import javax.xml.bind.annotation.XmlRootElement
 
-@XmlRootElement
-open class SimpleGameDto(
+data class SimpleGameDto(
         val name: String,
         val owner: String,
         val isMatch: Boolean

@@ -62,7 +62,7 @@ class GameHandler(
             @PathParam("gameName") gameName: String
     ): Response {
         val game = gameRepo.findByName(gameName) ?: return notFound()
-        val binary = jarDataRepo.loadGameApi(game.id) ?: return notFound()
+        val binary = jarDataRepo.loadGameApi(game) ?: return notFound()
         return Response.ok(binary).header("Content-Disposition", "attachment; filename=\"${game.name}-api.jar\"").build()
     }
 

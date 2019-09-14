@@ -1,7 +1,9 @@
-package hu.mktiti.tulkas.server.data.repo
+package hu.mktiti.tulkas.server.data.repo.inmem
 
 import hu.mktiti.tulkas.server.data.dao.Entity
 import hu.mktiti.tulkas.server.data.dao.NamedEntity
+import hu.mktiti.tulkas.server.data.repo.NamedEntityRepo
+import hu.mktiti.tulkas.server.data.repo.Repo
 
 abstract class InMemoryRepo<T : Entity>(
         initialData: List<T>
@@ -9,6 +11,9 @@ abstract class InMemoryRepo<T : Entity>(
 
     protected val data: MutableMap<Long, T> =
             HashMap(initialData.mapIndexed { i, e -> i.toLong() to e.withId(i.toLong()) }.toMap())
+
+    protected val entities: List<T>
+        get() = data.values.toList()
 
     protected var idCounter: Long = initialData.size.toLong()
 
@@ -39,14 +44,17 @@ abstract class InMemoryRepo<T : Entity>(
         return (startId until idCounter).toList()
     }
 
+    fun switch(oldId: Long, new: T): Boolean = data.replace(oldId, new) != null
+
 }
 
 abstract class NamedEntityInMemoryRepo<T : NamedEntity>(
         initialData: List<T>
 ) : InMemoryRepo<T>(initialData), NamedEntityRepo<T> {
 
-    override fun findByName(name: String): T? = data.values.singleOrNull { it.name == name }
+    override fun findByName(name: String): T? = entities.singleOrNull { it.name == name }
 
-    override fun searchNameContaining(namePart: String): List<T> = data.values.filter { it.name.contains(namePart) }
+    override fun searchNameContaining(namePart: String): List<T>
+            = entities.filter { it.name.contains(namePart, ignoreCase = true) }
 
 }

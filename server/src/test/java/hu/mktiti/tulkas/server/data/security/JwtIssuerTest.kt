@@ -2,9 +2,9 @@ package hu.mktiti.tulkas.server.data.security
 
 import hu.mktiti.kreator.property.intPropertyOpt
 import hu.mktiti.tulkas.server.data.dao.User
-import hu.mktiti.tulkas.server.data.handler.ExtendedJerseyTest
-import hu.mktiti.tulkas.server.data.repo.UserInMemoryRepo
+import hu.mktiti.tulkas.server.data.repo.inmem.UserInMemoryRepo
 import hu.mktiti.tulkas.server.data.safeValueOf
+import hu.mktiti.tulkas.server.data.util.ExtendedJerseyTest
 import hu.mktiti.tulkas.server.data.util.withinRange
 import org.eclipse.jetty.http.HttpStatus
 import org.junit.jupiter.api.Test

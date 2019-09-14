@@ -2,6 +2,7 @@ package hu.mktiti.tulkas.server.data.service
 
 import hu.mktiti.kreator.annotation.Injectable
 import hu.mktiti.kreator.annotation.InjectableArity
+import hu.mktiti.kreator.annotation.InjectableType
 import hu.mktiti.kreator.api.inject
 import hu.mktiti.tulkas.api.challenge.ChallengeResult
 import hu.mktiti.tulkas.api.match.MatchResult
@@ -27,23 +28,32 @@ private class GameRunData(
         val gameEngineJar: ByteArray
 )
 
+@InjectableType
+interface GameManager {
+
+    fun rankAllUnranked()
+
+    fun onNewBot(botId: Long)
+
+}
+
 @Injectable(arity = InjectableArity.SINGLETON)
-class GameManager(
+class DefaultGameManager(
         private val gameRepo: GameRepo = inject(),
         private val botRepo: BotRepo = inject(),
         private val jarDataRepo: JarDataRepo = inject(),
         private val gameLogRepo: GameLogRepo = inject(),
         private val actorLogRepo: ActorLogRepo = inject(),
         private val rankService: RankService = inject()
-) {
+) : GameManager {
 
     private val botQueue: BlockingQueue<Long> = LinkedBlockingQueue()
 
-    fun rankAllUnranked() {
+    override fun rankAllUnranked() {
         botRepo.unrankedBots().map(Bot::id).forEach(botQueue::put)
     }
 
-    fun onNewBot(botId: Long) {
+    override fun onNewBot(botId: Long) {
         botQueue.put(botId)
     }
 
@@ -68,9 +78,9 @@ class GameManager(
         }
 
         val gameRunData = GameRunData(
-                botJar = jarDataRepo.loadBot(bot.id) ?: return@forever,
-                gameApiJar = jarDataRepo.loadGameApi(game.id) ?: return@forever,
-                gameEngineJar = jarDataRepo.loadGameEngine(game.id) ?: return@forever
+                botJar = jarDataRepo.loadBot(bot) ?: return@forever,
+                gameApiJar = jarDataRepo.loadGameApi(game) ?: return@forever,
+                gameEngineJar = jarDataRepo.loadGameEngine(game) ?: return@forever
         )
 
         if (game.isMatch) {
@@ -120,7 +130,7 @@ class GameManager(
     }
 
     private fun playMatch(bot: Bot, game: Game, gameRunData: GameRunData, opponent: Bot) {
-        val opponentJar = jarDataRepo.loadBot(opponent.id)
+        val opponentJar = jarDataRepo.loadBot(opponent)
         if (opponentJar == null) {
             println("Cannot load binary for Bot [${opponent.id}]")
             return

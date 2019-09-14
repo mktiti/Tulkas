@@ -1,8 +1,9 @@
-package hu.mktiti.tulkas.server.data.repo
+package hu.mktiti.tulkas.server.data.repo.inmem
 
 import hu.mktiti.kreator.annotation.TestInjectable
 import hu.mktiti.kreator.api.inject
 import hu.mktiti.tulkas.server.data.dao.User
+import hu.mktiti.tulkas.server.data.repo.UserRepo
 import hu.mktiti.tulkas.server.data.security.PasswordHasher
 
 @TestInjectable(environment = "unit", tags = ["mem"])
