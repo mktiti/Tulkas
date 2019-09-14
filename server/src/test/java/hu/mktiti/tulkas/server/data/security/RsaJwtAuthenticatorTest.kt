@@ -2,11 +2,11 @@ package hu.mktiti.tulkas.server.data.security
 
 import com.auth0.jwt.algorithms.Algorithm
 import org.junit.jupiter.api.Test
-import sun.security.rsa.RSAPublicKeyImpl
 import java.security.KeyFactory
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.PKCS8EncodedKeySpec
+import java.security.spec.X509EncodedKeySpec
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.test.assertEquals
@@ -57,7 +57,7 @@ internal class RsaJwtAuthenticatorTest {
     init {
         val keyFactory = KeyFactory.getInstance("RSA")
         val privateKey = keyFactory.generatePrivate(PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyString)))
-        val publicKey = RSAPublicKeyImpl(Base64.getDecoder().decode(publicKeyString))
+        val publicKey = keyFactory.generatePublic(X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyString)))
 
         algorithm = Algorithm.RSA512(publicKey as RSAPublicKey, privateKey as RSAPrivateKey)
         testAlgorithmAuth = RsaJwtAuthenticator(algorithm, LocalDateTime.parse("2010-01-01T00:01"))
